@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>智能问答调试 - 客服机器人</title>
+<!-- Google Fonts & Material Symbols -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Theme Config -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-surface": "#2e3039",
+                    "on-surface-variant": "#434655",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "inverse-primary": "#b4c5ff",
+                    "outline-variant": "#c3c6d7",
+                    "primary": "#004ac6",
+                    "surface-bright": "#faf8ff",
+                    "tertiary": "#943700",
+                    "secondary": "#006b5f",
+                    "on-background": "#191b23",
+                    "error": "#ba1a1a",
+                    "secondary-fixed": "#71f8e4",
+                    "surface-variant": "#e1e2ed",
+                    "tertiary-container": "#bc4800",
+                    "surface-container-low": "#f3f3fe",
+                    "primary-container": "#2563eb",
+                    "error-container": "#ffdad6",
+                    "surface-container-high": "#e7e7f3",
+                    "surface-tint": "#0053db",
+                    "secondary-fixed-dim": "#4fdbc8",
+                    "on-secondary": "#ffffff",
+                    "on-primary-container": "#eeefff",
+                    "secondary-container": "#6df5e1",
+                    "on-surface": "#191b23",
+                    "on-secondary-fixed-variant": "#005048",
+                    "tertiary-fixed-dim": "#ffb596",
+                    "outline": "#737686",
+                    "on-tertiary-container": "#ffede6",
+                    "on-secondary-container": "#006f64",
+                    "surface-container": "#ededf9",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "tertiary-fixed": "#ffdbcd",
+                    "surface": "#faf8ff",
+                    "background": "#faf8ff",
+                    "surface-container-highest": "#e1e2ed",
+                    "on-primary": "#ffffff",
+                    "on-secondary-fixed": "#00201c",
+                    "surface-dim": "#d9d9e5",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-fixed": "#360f00",
+                    "on-tertiary": "#ffffff",
+                    "primary-fixed": "#dbe1ff",
+                    "inverse-on-surface": "#f0f0fb",
+                    "on-primary-fixed": "#00174b",
+                    "on-error": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "inset-squish-sm": "4px 8px",
+                    "inset-squish-md": "8px 16px",
+                    "container-padding": "24px",
+                    "stack-md": "16px",
+                    "stack-sm": "8px",
+                    "gutter": "16px",
+                    "unit": "4px",
+                    "stack-lg": "24px"
+            },
+            "fontFamily": {
+                    "label-md": ["Geist"],
+                    "headline-sm": ["Outfit"],
+                    "display-lg": ["Outfit"],
+                    "body-sm": ["Geist"],
+                    "headline-md": ["Outfit"],
+                    "body-md": ["Geist"],
+                    "mono-sm": ["Geist"],
+                    "body-lg": ["Geist"]
+            },
+            "fontSize": {
+                    "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "letterSpacing": "0", "fontWeight": "500"}],
+                    "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "body-sm": ["12px", {"lineHeight": "18px", "letterSpacing": "0", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400"}],
+                    "mono-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0", "fontWeight": "400"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "letterSpacing": "0", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen overflow-hidden selection:bg-primary/20">
+<!-- Shared Component: SideNavBar -->
+<nav class="w-[224px] h-screen fixed left-0 top-0 bg-surface dark:bg-inverse-surface border-r border-outline-variant dark:border-outline flex flex-col py-stack-lg gap-stack-sm z-50">
+<div class="px-container-padding mb-stack-lg">
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary dark:text-inverse-primary flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+                客服机器人
+            </h1>
+</div>
+<ul class="flex flex-col flex-1 px-3 gap-1">
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-on-surface-variant/10 transition-all duration-200 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span> 客服工作台
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-on-surface-variant/10 transition-all duration-200 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-[20px]">list_alt</span> 工单池
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-on-surface-variant/10 transition-all duration-200 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-[20px]">assignment_ind</span> 我的工单
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-on-surface-variant/10 transition-all duration-200 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-[20px]">auto_stories</span> 知识库总览
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-on-surface-variant/10 transition-all duration-200 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-[20px]">quiz</span> QA 库管理
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-on-surface-variant/10 transition-all duration-200 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-[20px]">upload_file</span> 文档入库
+                </a>
+</li>
+<!-- Active State -->
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-primary dark:text-primary-fixed-dim bg-primary-container/10 font-bold border-r-4 border-primary transition-all duration-200 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">smart_toy</span> 智能问答调试
+                </a>
+</li>
+</ul>
+</nav>
+<!-- Shared Component: TopNavBar -->
+<header class="h-[56px] fixed top-0 right-0 left-[224px] z-40 bg-surface-container-lowest dark:bg-inverse-surface border-b border-outline-variant dark:border-outline flex justify-between items-center px-container-padding">
+<div class="flex items-center gap-4">
+<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface">智能问答调试</h2>
+<span class="bg-surface-container-high text-on-surface-variant px-2 py-0.5 rounded text-xs font-body-sm">最小闭环调试</span>
+</div>
+<div class="flex items-center gap-6">
+<span class="font-body-sm text-body-sm text-on-surface-variant">当前账号：客服一组员工</span>
+<div class="flex items-center gap-3 text-outline">
+<button class="hover:text-primary dark:hover:text-primary-fixed-dim cursor-pointer transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+<button class="hover:text-primary dark:hover:text-primary-fixed-dim cursor-pointer transition-colors flex items-center justify-center relative">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full"></span>
+</button>
+</div>
+<div class="w-[1px] h-4 bg-outline-variant"></div>
+<button class="font-label-md text-label-md text-primary hover:text-primary/80 transition-colors cursor-pointer font-medium">
+                退出
+            </button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="ml-[224px] mt-[56px] h-[calc(100vh-56px)] p-container-padding flex gap-gutter bg-[#F7F8FA]">
+<!-- Left Column: Chat Simulator -->
+<section class="flex-1 max-w-[800px] flex flex-col bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm overflow-hidden">
+<!-- Header -->
+<div class="h-12 border-b border-outline-variant flex items-center justify-between px-4 bg-surface/50">
+<div class="flex items-center gap-2 text-on-surface font-label-md text-label-md">
+<span class="material-symbols-outlined text-[18px] text-primary">chat</span>
+                    对话模拟器
+                </div>
+<button class="text-outline hover:text-error transition-colors flex items-center gap-1 font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px]">delete_sweep</span> 清空会话
+                </button>
+</div>
+<!-- Chat Canvas -->
+<div class="flex-1 overflow-y-auto p-4 flex flex-col gap-6 bg-surface-bright" id="chat-canvas">
+<!-- System Greeting -->
+<div class="flex gap-3 max-w-[85%]">
+<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-[18px]">smart_toy</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-body-sm text-body-sm text-on-surface-variant ml-1">系统助理</span>
+<div class="bg-surface border border-outline-variant px-4 py-2.5 rounded-lg rounded-tl-none font-body-md text-body-md text-on-surface shadow-sm">
+                            您好，我是智能客服助理。请输入您想测试的问题，我将展示回答结果和引用来源。
+                        </div>
+</div>
+</div>
+<!-- Turn 1: User -->
+<div class="flex gap-3 max-w-[85%] self-end flex-row-reverse">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">person</span>
+</div>
+<div class="flex flex-col gap-1 items-end">
+<span class="font-body-sm text-body-sm text-on-surface-variant mr-1">员工</span>
+<div class="bg-primary text-on-primary px-4 py-2.5 rounded-lg rounded-tr-none font-body-md text-body-md shadow-sm">
+                            退款多久到账?
+                        </div>
+</div>
+</div>
+<!-- Turn 1: System -->
+<div class="flex gap-3 max-w-[85%] relative group">
+<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-[18px]">smart_toy</span>
+</div>
+<div class="flex flex-col gap-1 w-full relative">
+<span class="font-body-sm text-body-sm text-on-surface-variant ml-1">系统助理</span>
+<div class="bg-surface border border-outline-variant px-4 py-2.5 rounded-lg rounded-tl-none font-body-md text-body-md text-on-surface shadow-sm relative z-10 hover:border-primary/50 transition-colors cursor-pointer" onclick="document.getElementById('debug-panel-1').classList.remove('opacity-50'); document.getElementById('debug-panel-2').classList.add('opacity-50');">
+                            正常情况下，退款会在1-3个工作日内原路退回您的支付账户。如遇节假日可能会有顺延。
+                            <!-- Active Indicator overlay -->
+<div class="absolute inset-0 rounded-lg rounded-tl-none ring-2 ring-primary/20 pointer-events-none"></div>
+</div>
+</div>
+</div>
+<!-- Turn 2: User -->
+<div class="flex gap-3 max-w-[85%] self-end flex-row-reverse">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">person</span>
+</div>
+<div class="flex flex-col gap-1 items-end">
+<span class="font-body-sm text-body-sm text-on-surface-variant mr-1">员工</span>
+<div class="bg-primary text-on-primary px-4 py-2.5 rounded-lg rounded-tr-none font-body-md text-body-md shadow-sm">
+                            已经超过 3 天怎么办？
+                        </div>
+</div>
+</div>
+<!-- Turn 2: System -->
+<div class="flex gap-3 max-w-[85%]">
+<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-[18px]">smart_toy</span>
+</div>
+<div class="flex flex-col gap-1 w-full">
+<span class="font-body-sm text-body-sm text-on-surface-variant ml-1">系统助理</span>
+<div class="bg-surface border border-outline-variant px-4 py-2.5 rounded-lg rounded-tl-none font-body-md text-body-md text-on-surface shadow-sm hover:border-primary/50 transition-colors cursor-pointer" onclick="document.getElementById('debug-panel-2').classList.remove('opacity-50'); document.getElementById('debug-panel-1').classList.add('opacity-50');">
+                            请问您是通过哪个渠道支付的？不同渠道的超期处理方式略有不同。
+                        </div>
+</div>
+</div>
+<div id="scroll-anchor"></div>
+</div>
+<!-- Input Area -->
+<div class="p-4 border-t border-outline-variant bg-surface flex gap-3 items-end">
+<button class="w-9 h-9 rounded bg-surface-container-highest text-on-surface-variant flex items-center justify-center hover:bg-outline-variant transition-colors shrink-0">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+<div class="flex-1 bg-surface-container-lowest border border-outline-variant rounded focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all flex flex-col">
+<textarea class="w-full bg-transparent border-none focus:ring-0 resize-none font-body-md text-on-surface placeholder:text-outline p-2.5 min-h-[44px] max-h-[120px]" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'" placeholder="输入要测试的问题" rows="1"></textarea>
+</div>
+<button class="h-11 px-6 bg-primary hover:bg-primary/90 text-on-primary rounded font-label-md text-label-md flex items-center gap-2 transition-colors shrink-0 shadow-sm">
+                    发送
+                    <span class="material-symbols-outlined text-[16px]">send</span>
+</button>
+</div>
+</section>
+<!-- Right Column: Result Panel (Clinical Sandbox UI) -->
+<section class="w-[480px] shrink-0 flex flex-col bg-surface border border-outline-variant rounded-lg shadow-sm overflow-hidden">
+<!-- Header -->
+<div class="h-12 border-b border-outline-variant flex items-center px-4 bg-surface-container-low justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-secondary">manage_search</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold">问答结果面板</h2>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary-fixed"></span>
+<span class="font-body-sm text-body-sm text-secondary">引用已就绪</span>
+</div>
+</div>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto p-4 flex flex-col gap-4 bg-background/50">
+<!-- Debug Entry 1: The Direct Answer -->
+<div class="bg-surface border border-outline-variant rounded-md shadow-sm transition-opacity duration-300" id="debug-panel-1">
+<div class="px-3 py-2 border-b border-outline-variant/50 flex justify-between items-center bg-surface-bright rounded-t-md">
+<span class="font-body-sm text-[11px] text-outline">第 1 轮回答</span>
+<span class="font-body-sm text-[11px] text-secondary-fixed-dim">匹配度：98%</span>
+</div>
+<div class="p-4 flex flex-col gap-4">
+<!-- Data Row: Answer Type -->
+<div class="grid grid-cols-[80px_1fr] items-center gap-3">
+<span class="font-label-md text-label-md text-on-surface-variant">回答类型</span>
+<div>
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-secondary-container/20 text-on-secondary-container border border-secondary-container/30 font-label-md text-[12px]">
+<span class="material-symbols-outlined text-[14px]">done_all</span>
+                                    回答类型：直接答案
+                                </span>
+</div>
+</div>
+<!-- Data Row: Intent -->
+<div class="grid grid-cols-[80px_1fr] items-center gap-3">
+<span class="font-label-md text-label-md text-on-surface-variant">命中意图</span>
+<div class="font-mono-sm text-body-sm text-on-surface bg-surface-container-low px-2 py-1 rounded border border-outline-variant/30">
+                                退款到账时间
+                            </div>
+</div>
+<!-- Data Row: Content -->
+<div class="flex flex-col gap-1.5">
+<span class="font-label-md text-label-md text-on-surface-variant">回答内容</span>
+<div class="font-body-md text-body-md text-on-surface bg-surface-container-lowest border border-outline-variant p-3 rounded text-justify leading-relaxed shadow-inner">
+                                正常情况下，退款会在1-3个工作日内原路退回您的支付账户。如遇节假日可能会有顺延。
+                            </div>
+</div>
+<!-- Data Row: Source -->
+<div class="grid grid-cols-[80px_1fr] items-start gap-3 pt-2 border-t border-outline-variant/50">
+<span class="font-label-md text-label-md text-on-surface-variant mt-1">引用来源</span>
+<div class="flex flex-col gap-2">
+<a class="inline-flex items-center gap-1.5 text-primary hover:text-primary-container transition-colors group w-fit" href="#">
+<span class="material-symbols-outlined text-[16px] group-hover:scale-110 transition-transform">library_books</span>
+<span class="font-body-md text-body-md underline-offset-4 hover:underline">引用来源: QA：退款到账时间说明</span>
+<span class="material-symbols-outlined text-[14px] opacity-0 group-hover:opacity-100 transition-opacity">open_in_new</span>
+</a>
+<!-- Context snippet -->
+<div class="pl-3 border-l-2 border-outline-variant/40 text-outline font-body-sm text-body-sm line-clamp-2">
+                                    ...退款处理时效：用户发起退款后，系统将在24小时内审核。审核通过后，资金将在1-3个工作日内原路返回...
+                                </div>
+</div>
+</div>
+</div>
+</div>
+<!-- Debug Entry 2: The Clarification (Anti-ask) -->
+<div class="bg-surface border border-outline-variant rounded-md shadow-sm opacity-60 hover:opacity-100 transition-opacity duration-300" id="debug-panel-2">
+<div class="px-3 py-2 border-b border-outline-variant/50 flex justify-between items-center bg-surface-bright rounded-t-md">
+<span class="font-body-sm text-[11px] text-outline">第 2 轮反问</span>
+<span class="font-body-sm text-[11px] text-tertiary">触发反问</span>
+</div>
+<div class="p-4 flex flex-col gap-4">
+<!-- Data Row: Answer Type -->
+<div class="grid grid-cols-[80px_1fr] items-center gap-3">
+<span class="font-label-md text-label-md text-on-surface-variant">策略动作</span>
+<div>
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-tertiary-container/10 text-tertiary border border-tertiary-container/20 font-label-md text-[12px]">
+<span class="material-symbols-outlined text-[14px]">help</span>
+                                    反问
+                                </span>
+</div>
+</div>
+<!-- Data Row: Missing Entity -->
+<div class="grid grid-cols-[80px_1fr] items-center gap-3">
+<span class="font-label-md text-label-md text-on-surface-variant">缺失实体</span>
+<div class="flex gap-2">
+<span class="font-mono-sm text-body-sm text-error bg-error-container/30 px-2 py-1 rounded border border-error-container/50 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">error</span>
+                                    支付渠道
+                                </span>
+</div>
+</div>
+<!-- Data Row: Content -->
+<div class="flex flex-col gap-1.5">
+<span class="font-label-md text-label-md text-on-surface-variant">生成文案</span>
+<div class="font-body-md text-body-md text-on-surface bg-surface-container-lowest border border-outline-variant border-dashed p-3 rounded">
+                                请问您是通过哪个渠道支付的？不同渠道的超期处理方式略有不同。
+                            </div>
+</div>
+</div>
+</div>
+<!-- Raw JSON Toggle / Technical Section -->
+<div class="mt-4 border-t border-outline-variant pt-4">
+<button class="w-full flex items-center justify-between text-on-surface-variant hover:text-on-surface transition-colors font-label-md text-label-md">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">code</span>
+                            查看引用上下文
+                        </span>
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<script>
+        // Simple script to keep chat scrolled to bottom on load
+        window.onload = function() {
+            const canvas = document.getElementById('chat-canvas');
+            canvas.scrollTop = canvas.scrollHeight;
+        };
+    </script>
+</body></html>

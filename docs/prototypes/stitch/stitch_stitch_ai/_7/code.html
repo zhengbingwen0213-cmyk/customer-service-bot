@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>客服机器人 - 文档入库</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Outfit:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-surface": "#2e3039",
+                        "on-surface-variant": "#434655",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "inverse-primary": "#b4c5ff",
+                        "outline-variant": "#c3c6d7",
+                        "primary": "#004ac6",
+                        "surface-bright": "#faf8ff",
+                        "tertiary": "#943700",
+                        "secondary": "#006b5f",
+                        "on-background": "#191b23",
+                        "error": "#ba1a1a",
+                        "secondary-fixed": "#71f8e4",
+                        "surface-variant": "#e1e2ed",
+                        "tertiary-container": "#bc4800",
+                        "surface-container-low": "#f3f3fe",
+                        "primary-container": "#2563eb",
+                        "error-container": "#ffdad6",
+                        "surface-container-high": "#e7e7f3",
+                        "surface-tint": "#0053db",
+                        "secondary-fixed-dim": "#4fdbc8",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#eeefff",
+                        "secondary-container": "#6df5e1",
+                        "on-surface": "#191b23",
+                        "on-secondary-fixed-variant": "#005048",
+                        "tertiary-fixed-dim": "#ffb596",
+                        "outline": "#737686",
+                        "on-tertiary-container": "#ffede6",
+                        "on-secondary-container": "#006f64",
+                        "surface-container": "#ededf9",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "tertiary-fixed": "#ffdbcd",
+                        "surface": "#faf8ff",
+                        "background": "#faf8ff",
+                        "surface-container-highest": "#e1e2ed",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed": "#00201c",
+                        "surface-dim": "#d9d9e5",
+                        "on-tertiary-fixed-variant": "#7d2d00",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed": "#360f00",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed": "#dbe1ff",
+                        "inverse-on-surface": "#f0f0fb",
+                        "on-primary-fixed": "#00174b",
+                        "on-error": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "inset-squish-sm": "4px 8px",
+                        "inset-squish-md": "8px 16px",
+                        "container-padding": "24px",
+                        "stack-md": "16px",
+                        "stack-sm": "8px",
+                        "gutter": "16px",
+                        "unit": "4px",
+                        "stack-lg": "24px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Geist"],
+                        "headline-sm": ["Outfit"],
+                        "display-lg": ["Outfit"],
+                        "body-sm": ["Geist"],
+                        "headline-md": ["Outfit"],
+                        "body-md": ["Geist"],
+                        "mono-sm": ["Geist"],
+                        "body-lg": ["Geist"]
+                    },
+                    "fontSize": {
+                        "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "letterSpacing": "0", "fontWeight": "500"}],
+                        "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "body-sm": ["12px", {"lineHeight": "18px", "letterSpacing": "0", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400"}],
+                        "mono-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "letterSpacing": "0", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 20px;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        /* Custom scrollbar for clinical look */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #faf8ff;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e1e2ed;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #c3c6d7;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased font-body-md h-screen overflow-hidden flex">
+<!-- SideNavBar -->
+<nav class="w-[224px] h-screen fixed left-0 top-0 bg-surface border-r border-outline-variant flex flex-col py-stack-lg gap-stack-sm z-50">
+<div class="px-container-padding mb-stack-md flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-2xl" data-weight="fill" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+<span class="font-headline-sm text-headline-sm font-bold text-primary">客服机器人</span>
+</div>
+<div class="flex flex-col w-full">
+<a class="flex items-center gap-3 px-container-padding py-3 text-on-surface-variant hover:bg-surface-container-low transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">客服工作台</span>
+</a>
+<a class="flex items-center gap-3 px-container-padding py-3 text-on-surface-variant hover:bg-surface-container-low transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">list_alt</span>
+<span class="font-label-md text-label-md">工单池</span>
+</a>
+<a class="flex items-center gap-3 px-container-padding py-3 text-on-surface-variant hover:bg-surface-container-low transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">assignment_ind</span>
+<span class="font-label-md text-label-md">我的工单</span>
+</a>
+<a class="flex items-center gap-3 px-container-padding py-3 text-on-surface-variant hover:bg-surface-container-low transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">auto_stories</span>
+<span class="font-label-md text-label-md">知识库总览</span>
+</a>
+<a class="flex items-center gap-3 px-container-padding py-3 text-on-surface-variant hover:bg-surface-container-low transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">quiz</span>
+<span class="font-label-md text-label-md">QA 库管理</span>
+</a>
+<a class="flex items-center gap-3 px-container-padding py-3 text-primary bg-primary-container/10 font-bold border-r-4 border-primary transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-weight="fill" style="font-variation-settings: 'FILL' 1;">upload_file</span>
+<span class="font-label-md text-label-md">文档入库</span>
+</a>
+<a class="flex items-center gap-3 px-container-padding py-3 text-on-surface-variant hover:bg-surface-container-low transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">smart_toy</span>
+<span class="font-label-md text-label-md">智能问答调试</span>
+</a>
+</div>
+</nav>
+<!-- TopNavBar -->
+<header class="h-[56px] fixed top-0 right-0 left-[224px] z-40 bg-surface-container-lowest border-b border-outline-variant flex justify-between items-center px-container-padding">
+<div class="flex items-center">
+<h1 class="font-headline-sm text-headline-sm font-bold text-on-surface">文档入库</h1>
+</div>
+<div class="flex items-center gap-stack-md">
+<span class="font-label-md text-label-md text-on-surface-variant">当前账号：客服一组员工</span>
+<div class="flex items-center gap-2">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-surface-container-low cursor-pointer">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-surface-container-low cursor-pointer relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+</div>
+<div class="w-px h-6 bg-outline-variant mx-2"></div>
+<button class="font-label-md text-label-md text-error hover:text-on-error-container transition-colors cursor-pointer">
+                退出
+            </button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-[224px] mt-[56px] w-full h-[calc(100vh-56px)] overflow-y-auto bg-background p-container-padding flex flex-col gap-stack-lg">
+<!-- Upload Area -->
+<section class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-8 flex flex-col items-center justify-center gap-4 relative overflow-hidden group hover:border-primary transition-colors border-dashed bg-surface-container-low/30">
+<div class="w-16 h-16 rounded-full bg-primary-container/10 flex items-center justify-center text-primary mb-2 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl">cloud_upload</span>
+</div>
+<div class="text-center">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-1">将文档拖拽至此处，或</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-6">支持 .pdf, .docx, .txt 格式，单文件不超过 50MB</p>
+<button class="bg-primary hover:bg-surface-tint text-on-primary font-label-md text-label-md py-2 px-6 rounded transition-colors shadow-sm cursor-pointer">
+                    选择文档
+                </button>
+</div>
+<!-- Invisible file input overlaid for functionality if needed -->
+<input accept=".pdf,.docx,.txt" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" multiple="" type="file"/>
+</section>
+<!-- Document Table Area -->
+<section class="flex flex-col bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden flex-1">
+<div class="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-surface-bright">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant">list</span>
+<h3 class="font-label-md text-label-md text-on-surface font-semibold">入库任务队列</h3>
+</div>
+<div class="flex gap-2">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
+<input class="h-[32px] pl-9 pr-3 py-1 border border-outline-variant rounded bg-surface-container-lowest text-body-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all w-[240px]" placeholder="搜索文档名称..." type="text"/>
+</div>
+<button class="h-[32px] px-3 border border-outline-variant rounded bg-surface-container-lowest hover:bg-surface-container-low transition-colors flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+<span class="font-body-sm text-body-sm">筛选</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-background text-outline font-label-md text-label-md border-b border-outline-variant h-[40px]">
+<th class="px-6 py-2 font-medium w-[40%]">文档名称</th>
+<th class="px-6 py-2 font-medium w-[15%]">格式</th>
+<th class="px-6 py-2 font-medium w-[20%]">上传时间</th>
+<th class="px-6 py-2 font-medium w-[15%]">状态</th>
+<th class="px-6 py-2 font-medium w-[10%] text-right">操作</th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-body-sm text-on-surface">
+<!-- Row 1: Done -->
+<tr class="border-b border-outline-variant hover:bg-surface-container-low transition-colors h-[48px] group">
+<td class="px-6 py-2 flex items-center gap-3 h-[48px]">
+<span class="material-symbols-outlined text-error">picture_as_pdf</span>
+<span class="truncate font-medium">售后政策说明.pdf</span>
+</td>
+<td class="px-6 py-2 text-on-surface-variant">PDF</td>
+<td class="px-6 py-2 text-on-surface-variant font-mono-sm text-mono-sm">2023-10-27 14:30:22</td>
+<td class="px-6 py-2">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-secondary-container/30 text-secondary font-label-md text-[11px]">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                                    解析完成
+                                </span>
+</td>
+<td class="px-6 py-2 text-right">
+<button class="text-primary hover:text-surface-tint font-label-md text-label-md transition-colors opacity-0 group-hover:opacity-100">查看</button>
+</td>
+</tr>
+<!-- Row 2: Processing -->
+<tr class="border-b border-outline-variant hover:bg-surface-container-low transition-colors h-[48px] group">
+<td class="px-6 py-2 flex items-center gap-3 h-[48px]">
+<span class="material-symbols-outlined text-primary">description</span>
+<span class="truncate font-medium">会员权益手册.docx</span>
+</td>
+<td class="px-6 py-2 text-on-surface-variant">DOCX</td>
+<td class="px-6 py-2 text-on-surface-variant font-mono-sm text-mono-sm">2023-10-27 15:05:10</td>
+<td class="px-6 py-2">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-primary-container/10 text-primary font-label-md text-[11px]">
+<span class="material-symbols-outlined text-[14px] animate-spin">sync</span>
+                                    向量化中...
+                                </span>
+</td>
+<td class="px-6 py-2 text-right">
+<button class="text-on-surface-variant hover:text-error font-label-md text-label-md transition-colors opacity-0 group-hover:opacity-100">取消</button>
+</td>
+</tr>
+<!-- Row 3: Failed -->
+<tr class="border-b border-outline-variant hover:bg-surface-container-low transition-colors h-[48px] group bg-error-container/10">
+<td class="px-6 py-2 flex items-center gap-3 h-[48px]">
+<span class="material-symbols-outlined text-error">picture_as_pdf</span>
+<span class="truncate font-medium text-error">支付问题处理指南.pdf</span>
+</td>
+<td class="px-6 py-2 text-on-surface-variant">PDF</td>
+<td class="px-6 py-2 text-on-surface-variant font-mono-sm text-mono-sm">2023-10-27 11:20:05</td>
+<td class="px-6 py-2">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-error-container text-error font-label-md text-[11px]" title="文件损坏或加密，无法读取文本内容。">
+<span class="material-symbols-outlined text-[14px]">error</span>
+                                    解析失败
+                                </span>
+</td>
+<td class="px-6 py-2 text-right">
+<div class="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-primary hover:text-surface-tint font-label-md text-label-md transition-colors">重试</button>
+<button class="text-error hover:text-on-error-container font-label-md text-label-md transition-colors">删除</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination / Footer -->
+<div class="px-6 py-3 border-t border-outline-variant bg-surface-bright flex justify-between items-center">
+<span class="font-body-sm text-body-sm text-on-surface-variant">共 3 条记录</span>
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 flex items-center justify-center rounded text-outline hover:bg-surface-container hover:text-on-surface transition-colors disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-primary-container/10 text-primary font-label-md text-label-md">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded text-on-surface-variant hover:bg-surface-container transition-colors disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+</body></html>

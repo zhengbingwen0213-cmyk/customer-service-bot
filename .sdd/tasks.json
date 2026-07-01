@@ -1,0 +1,1217 @@
+{
+  "project": "客服机器人",
+  "project_type": "web",
+  "created": "2026-05-23",
+  "source_files": {
+    "prd": "docs/PRD.md",
+    "plan": "docs/Plan.md",
+    "api_contracts": "docs/api-contracts.md"
+  },
+  "external_services": [
+    {
+      "name": "阿里云百炼",
+      "required": true,
+      "config_keys": [
+        "DASHSCOPE_API_KEY",
+        "BAILIAN_BASE_URL",
+        "BAILIAN_CHAT_MODEL"
+      ],
+      "tester_access_required": "测试 Key、可调用额度、网络可访问；开发前必须实测聊天模型调用。",
+      "fallback_allowed": true,
+      "status": "confirmed",
+      "notes": "本地配置已存在，但开发前需实测；不可用时 AI 回答只能标记为 Mock/fallback 验收。"
+    },
+    {
+      "name": "阿里云百炼 Embedding",
+      "required": true,
+      "config_keys": [
+        "DASHSCOPE_API_KEY",
+        "BAILIAN_EMBEDDING_MODEL",
+        "BAILIAN_EMBEDDING_DIMENSIONS"
+      ],
+      "tester_access_required": "测试 Key、可调用额度、网络可访问；开发前必须实测 Embedding 调用。",
+      "fallback_allowed": true,
+      "status": "confirmed",
+      "notes": "本地配置已存在，但开发前需实测；不可用时向量生成只能标记为关键词检索降级验收。"
+    },
+    {
+      "name": "SQLite",
+      "required": true,
+      "config_keys": [
+        "DATABASE_URL"
+      ],
+      "tester_access_required": "本地 SQLite 文件读写权限。",
+      "fallback_allowed": false,
+      "status": "confirmed",
+      "notes": "SQLite 可用；业务库文件和表由后端基础设施任务初始化。"
+    },
+    {
+      "name": "SQLite FTS5",
+      "required": true,
+      "config_keys": [
+        "DATABASE_URL"
+      ],
+      "tester_access_required": "本地 SQLite FTS5 可用性验证权限。",
+      "fallback_allowed": true,
+      "status": "confirmed",
+      "notes": "FTS5 可用；SQLite 向量插件不可用时优先降级到 FTS5。"
+    },
+    {
+      "name": "SQLite 向量插件",
+      "required": true,
+      "config_keys": [
+        "SQLITE_VECTOR_EXTENSION_PATH"
+      ],
+      "tester_access_required": "本机插件可安装或可加载，并允许执行加载探针。",
+      "fallback_allowed": true,
+      "status": "fallback",
+      "notes": "插件待验证；不可用时允许降级为 FTS5 / LIKE 检索，并在测试报告和页面配置状态中标注。"
+    },
+    {
+      "name": "本地文件存储",
+      "required": true,
+      "config_keys": [
+        "UPLOAD_DIR"
+      ],
+      "tester_access_required": "项目运行目录写入权限。",
+      "fallback_allowed": true,
+      "status": "confirmed",
+      "notes": "本地项目目录可用于 MVP 文件保存；目录由后端基础设施任务初始化。"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "T-001",
+      "title": "前端工程、路由布局与登录设置 Mock",
+      "type": "frontend",
+      "description": "初始化 Vue 3 / TypeScript / Vite 前端工程、路由、Pinia 登录态和 SaaS 后台公共布局，实现 P01 登录页与 P10 账号设置页 Mock。只能使用 frontend/src/mocks/ 数据，不调用真实后端、真实模型或真实数据库。",
+      "source_feature": "阶段1 前端MVP Mock / P01 / P10 / F01 / F10",
+      "acceptanceCriteria": [
+        "用户在登录页看到符合原型的账号输入框、密码输入框、登录按钮和错误提示区域。",
+        "用户输入 Mock 账号密码并点击登录，页面进入登录后的后台布局，左侧导航、顶部账号区和内容区正常显示。",
+        "用户进入账号与基础设置页，看到当前账号、模型和数据库配置状态的演示信息，页面不展示真实密钥或内部链路。",
+        "用户点击退出登录后回到登录页；本任务只验证 Mock 登录态，不要求真实后端、真实模型或真实数据库。"
+      ],
+      "technicalChecks": [
+        "Frontend typecheck passes",
+        "Frontend lint passes",
+        "Frontend build passes",
+        "Mock 登录、当前账号、退出登录和设置数据字段与 docs/api-contracts.md 一致",
+        "Mock 数据集中存放在 frontend/src/mocks/，不得写入真实 Key、密码或外部服务凭证"
+      ],
+      "frontendIntegration": {
+        "required": false,
+        "pages": [
+          "P01 登录页",
+          "P10 账号与基础设置"
+        ],
+        "services": [
+          "frontend/src/services/auth.ts",
+          "frontend/src/services/settings.ts"
+        ],
+        "realApiEndpoints": [],
+        "mockExitCriteria": []
+      },
+      "externalServices": [],
+      "dependencies": [],
+      "priority": 1,
+      "rules_files": [
+        "dev-standards/frontend.md"
+      ],
+      "status": "passed",
+      "developer_id": "019efe91-7433-73f0-99b3-3db7fd490a59",
+      "tester_id": "019efe9b-d4cb-7873-b284-4ade8b346e9b",
+      "retry_count": 2,
+      "blocked": false,
+      "notes": "",
+      "user_gate": true
+    },
+    {
+      "id": "T-002",
+      "title": "客服工作台 Mock",
+      "type": "frontend",
+      "description": "按原型实现 P02 客服工作台 Mock，包括基础统计、待处理工单快捷区、AI 快捷问答入口和知识库快捷入口。只能使用 Mock 数据与前端本地状态。",
+      "source_feature": "阶段1 前端MVP Mock / P02 / F02",
+      "acceptanceCriteria": [
+        "用户进入客服工作台，看到待接、处理中、已完成、QA 数量和文档数量等概览卡片。",
+        "用户在待处理工单快捷区看到少量工单卡片，点击工单入口后页面能跳转到工单详情 Mock 页面。",
+        "用户在 AI 快捷问答入口输入问题并点击发送，页面展示 Mock AI 回答气泡和引用来源占位。",
+        "用户点击知识库快捷入口，页面能跳转到 QA 库管理或文档入库 Mock 页面；本任务不要求真实模型、真实后端或数据库。"
+      ],
+      "technicalChecks": [
+        "Frontend typecheck passes",
+        "Frontend lint passes",
+        "Mock dashboard summary、dashboard tickets、assistant ask 数据字段与 docs/api-contracts.md 一致",
+        "P02 不展示模型版本、请求号、原始上下文或内部链路"
+      ],
+      "frontendIntegration": {
+        "required": false,
+        "pages": [
+          "P02 客服工作台"
+        ],
+        "services": [
+          "frontend/src/services/dashboard.ts",
+          "frontend/src/services/assistant.ts"
+        ],
+        "realApiEndpoints": [],
+        "mockExitCriteria": []
+      },
+      "externalServices": [],
+      "dependencies": [
+        "T-001"
+      ],
+      "priority": 2,
+      "rules_files": [
+        "dev-standards/frontend.md"
+      ],
+      "status": "passed",
+      "developer_id": "019f02af-f504-7cf2-aa5b-60a9e3952d7d",
+      "tester_id": "019f02b5-fc87-7f52-b660-a34b0e9c81fd",
+      "retry_count": 0,
+      "blocked": false,
+      "notes": "",
+      "user_gate": true
+    },
+    {
+      "id": "T-003",
+      "title": "工单池与我的工单 Mock",
+      "type": "frontend",
+      "description": "按原型实现 P03 工单池和 P04 我的工单 Mock，包括列表、关键词搜索、状态/优先级筛选、接取反馈和进入详情。只使用 Mock 数据和当前页面状态。",
+      "source_feature": "阶段1 前端MVP Mock / P03 / P04 / F03 / F04",
+      "acceptanceCriteria": [
+        "用户打开工单池，看到待接工单列表、状态筛选、优先级筛选和关键词搜索入口。",
+        "用户修改筛选条件或输入关键词后，当前页面的 Mock 工单列表按条件收敛展示。",
+        "用户点击接取按钮后，当前页面显示接取成功反馈，该工单从工单池 Mock 列表中移除。",
+        "用户打开我的工单，看到处理中和已完成工单列表，并可点击工单进入详情 Mock 页面；本任务不要求真实账号隔离或数据库持久化。"
+      ],
+      "technicalChecks": [
+        "Frontend typecheck passes",
+        "Frontend lint passes",
+        "Mock tickets list、ticket claim、ticket detail 数据字段与 docs/api-contracts.md 一致",
+        "工单状态和优先级枚举只使用 open / processing / completed 与 low / medium / high"
+      ],
+      "frontendIntegration": {
+        "required": false,
+        "pages": [
+          "P03 工单池",
+          "P04 我的工单"
+        ],
+        "services": [
+          "frontend/src/services/tickets.ts"
+        ],
+        "realApiEndpoints": [],
+        "mockExitCriteria": []
+      },
+      "externalServices": [],
+      "dependencies": [
+        "T-001"
+      ],
+      "priority": 3,
+      "rules_files": [
+        "dev-standards/frontend.md"
+      ],
+      "status": "passed",
+      "developer_id": "019f12a8-bc7d-7363-99af-6a9b1f1ce97f",
+      "tester_id": null,
+      "retry_count": 0,
+      "blocked": false,
+      "notes": "",
+      "user_gate": true
+    },
+    {
+      "id": "T-004",
+      "title": "工单详情与会话处理 Mock",
+      "type": "frontend",
+      "description": "按原型实现 P05 工单详情 Mock，包括工单信息、会话记录、AI 建议面板、引用来源、采用建议、发送回复和完成工单。只保留 MVP 动作，不新增复杂工单能力。",
+      "source_feature": "阶段1 前端MVP Mock / P05 / F05",
+      "acceptanceCriteria": [
+        "用户打开工单详情页，看到工单基础信息、客户问题、处理状态和历史会话记录。",
+        "用户点击采用 Mock AI 建议，回复编辑器中填入建议内容，引用来源在右侧面板可见。",
+        "用户输入回复并点击发送，当前页面会话列表新增员工回复气泡。",
+        "用户点击完成工单，当前页面状态变为已完成；本任务不要求真实 AI、真实消息持久化或真实工单流转。"
+      ],
+      "technicalChecks": [
+        "Frontend typecheck passes",
+        "Frontend lint passes",
+        "Mock ticket detail、messages、complete、assistant ask 数据字段与 docs/api-contracts.md 一致",
+        "P05 不出现审批流、回访流、自动派单、多渠道接入等超出 MVP 的动作"
+      ],
+      "frontendIntegration": {
+        "required": false,
+        "pages": [
+          "P05 工单详情与会话处理页"
+        ],
+        "services": [
+          "frontend/src/services/tickets.ts",
+          "frontend/src/services/assistant.ts"
+        ],
+        "realApiEndpoints": [],
+        "mockExitCriteria": []
+      },
+      "externalServices": [],
+      "dependencies": [
+        "T-003"
+      ],
+      "priority": 4,
+      "rules_files": [
+        "dev-standards/frontend.md"
+      ],
+      "status": "passed",
+      "developer_id": null,
+      "tester_id": null,
+      "retry_count": 0,
+      "blocked": false,
+      "notes": "",
+      "user_gate": true
+    },
+    {
+      "id": "T-005",
+      "title": "知识库总览与 QA 管理 Mock",
+      "type": "frontend",
+      "description": "按原型实现 P06 知识库总览和 P07 QA 库管理 Mock，包括数量概览、最近知识、QA 搜索、新增、编辑、删除和启停状态。",
+      "source_feature": "阶段1 前端MVP Mock / P06 / P07 / F06 / F07",
+      "acceptanceCriteria": [
+        "用户打开知识库总览，看到 QA 数量、文档数量、最近更新时间和最近知识列表。",
+        "用户点击 QA 入口，页面进入 QA 库管理 Mock 页面。",
+        "用户在 QA 库管理页新增或编辑 QA 后，当前页面列表展示更新后的问题、答案和启用状态。",
+        "用户输入关键词搜索 QA，列表按 Mock 数据收敛；本任务不要求真实 Embedding、真实检索或数据库写入。"
+      ],
+      "technicalChecks": [
+        "Frontend typecheck passes",
+        "Frontend lint passes",
+        "Mock knowledge overview、recent、qa CRUD 数据字段与 docs/api-contracts.md 一致",
+        "QA 状态枚举只使用 enabled / disabled"
+      ],
+      "frontendIntegration": {
+        "required": false,
+        "pages": [
+          "P06 知识库总览",
+          "P07 QA 库管理"
+        ],
+        "services": [
+          "frontend/src/services/knowledge.ts"
+        ],
+        "realApiEndpoints": [],
+        "mockExitCriteria": []
+      },
+      "externalServices": [],
+      "dependencies": [
+        "T-001"
+      ],
+      "priority": 5,
+      "rules_files": [
+        "dev-standards/frontend.md"
+      ],
+      "status": "passed",
+      "developer_id": null,
+      "tester_id": null,
+      "retry_count": 0,
+      "blocked": false,
+      "notes": "",
+      "user_gate": true
+    },
+    {
+      "id": "T-006",
+      "title": "文档入库与智能问答调试 Mock",
+      "type": "frontend",
+      "description": "按原型实现 P08 文档入库和 P09 智能问答调试 Mock，包括文档列表、上传状态、删除、问题输入、直接答案、反问、引用来源和最近上下文展示。",
+      "source_feature": "阶段1 前端MVP Mock / P08 / P09 / F08 / F09",
+      "acceptanceCriteria": [
+        "用户打开文档入库页，看到文档名称、入库状态、切片数量、上传人和更新时间。",
+        "用户选择文件并点击上传后，当前页面新增一条 Mock 入库记录，并展示处理中、已完成或失败状态。",
+        "用户打开智能问答调试页，输入问题并发送，页面展示 Mock 直接答案、反问或生成答案以及引用来源。",
+        "用户连续追问时，页面展示最近上下文效果；本任务不要求真实文件保存、真实 Embedding、真实向量检索或真实模型调用。"
+      ],
+      "technicalChecks": [
+        "Frontend typecheck passes",
+        "Frontend lint passes",
+        "Mock documents、assistant ask 数据字段与 docs/api-contracts.md 一致",
+        "P09 不展示模型版本、请求号、原始上下文或内部链路",
+        "文档状态枚举只使用 processing / completed / failed"
+      ],
+      "frontendIntegration": {
+        "required": false,
+        "pages": [
+          "P08 文档入库",
+          "P09 智能问答调试"
+        ],
+        "services": [
+          "frontend/src/services/documents.ts",
+          "frontend/src/services/assistant.ts"
+        ],
+        "realApiEndpoints": [],
+        "mockExitCriteria": []
+      },
+      "externalServices": [],
+      "dependencies": [
+        "T-001"
+      ],
+      "priority": 6,
+      "rules_files": [
+        "dev-standards/frontend.md"
+      ],
+      "status": "passed",
+      "developer_id": null,
+      "tester_id": null,
+      "retry_count": 0,
+      "blocked": false,
+      "notes": "",
+      "user_gate": true
+    },
+    {
+      "id": "T-007",
+      "title": "后端基础设施与健康检查",
+      "type": "backend",
+      "description": "基于项目根目录 pycore 初始化 backend/src FastAPI 应用、配置加载、日志、统一响应、CORS、依赖注入骨架和 /health 健康检查；复制项目工具链配置，禁止重写 pycore 核心能力。",
+      "source_feature": "阶段2 后端基础设施 / B00",
+      "acceptanceCriteria": [
+        "用户或 Tester 打开后端健康检查地址时，能看到服务正常的成功响应。",
+        "前端页面仍可在 Mock 模式打开，后端基础设施完成后不要求用户进行页面验收。"
+      ],
+      "technicalChecks": [
+        "backend/src/main.py 基于 pycore.api.APIServer 创建应用，不自行重写 FastAPI server 核心能力",
+        "backend/src/core/config.py 基于 pycore.core.ConfigManager 读取配置，敏感值只从 .env 或 .env.local 读取",
+        "backend/src/api/deps.py 基于 pycore 模板扩展路由级依赖",
+        "CORS 中间件已注册，统一响应与统一错误格式符合 docs/api-contracts.md",
+        "pyproject.toml 已配置 ruff、mypy、pytest",
+        "python3.11 -m ruff check backend/src backend/tests 通过",
+        "python3.11 -m mypy backend/src backend/tests 通过",
+        "python3.11 -m pytest backend/tests 通过",
+        "cd backend && PYTHONPATH=.. python3.11 -m uvicorn src.main:app --host 127.0.0.1 --port <free-port> 可短时启动",
+        "GET /health 返回 200，响应格式符合 docs/api-contracts.md",
+        "pycore/ 未被纳入项目业务代码质量门禁"
+      ],
+      "frontendIntegration": {
+        "required": false,
+        "pages": [],
+        "services": [],
+        "realApiEndpoints": [
+          "GET /health"
+        ],
+        "mockExitCriteria": []
+      },
+      "externalServices": [],
+      "dependencies": [
+        "T-006"
+      ],
+      "priority": 7,
+      "rules_files": [
+        "dev-standards/backend-dev.md",
+        "dev-standards/backend-layers.md"
+      ],
+      "status": "passed",
+      "developer_id": null,
+      "tester_id": null,
+      "retry_count": 0,
+      "blocked": false,
+      "notes": "",
+      "user_gate": false
+    },
+    {
+      "id": "T-008",
+      "title": "SQLite Schema、演示数据与本地文件目录",
+      "type": "backend",
+      "description": "初始化 SQLite schema、FTS5 检索表、业务模型、Repository 骨架、演示账号、演示工单、会话、QA、文档元数据和上传目录，为真实 API 联调准备本地数据。",
+      "source_feature": "阶段2 后端基础设施 / B01",
+      "acceptanceCriteria": [
+        "用户后续进入真实联调时，可以使用演示账号看到演示工单、演示 QA 和演示文档记录。",
+        "本任务不触发用户页面验收；数据落盘和检索能力由自动技术检查验证。"
+      ],
+      "technicalChecks": [
+        "backend/src/db/models.py 和 backend/src/db/session.py 基于 pycore 数据库模板扩展",
+        "账号、工单、会话消息、QA、文档、文档切片、向量索引和基础记忆表结构覆盖 PRD 数据契约",
+        "cd backend && PYTHONPATH=.. python3.11 scripts/init_db.py 执行通过",
+        "真实 SQLite 数据库文件存在，目标业务表和 seed 数据已落盘，不能只依赖测试夹具",
+        "SQLite FTS5 探针通过，QA 或文档关键词索引可创建和查询",
+        "UPLOAD_DIR 对应目录可创建、可写入、可清理测试文件",
+        "python3.11 -m pytest backend/tests 通过",
+        "python3.11 -m ruff check backend/src backend/tests 通过",
+        "python3.11 -m mypy backend/src backend/tests 通过"
+      ],
+      "frontendIntegration": {
+        "required": false,
+        "pages": [],
+        "services": [],
+        "realApiEndpoints": [],
+        "mockExitCriteria": []
+      },
+      "externalServices": [
+        "SQLite",
+        "SQLite FTS5",
+        "本地文件存储"
+      ],
+      "dependencies": [
+        "T-007"
+      ],
+      "priority": 8,
+      "rules_files": [
+        "dev-standards/backend-dev.md",
+        "dev-standards/backend-layers.md"
+      ],
+      "status": "passed",
+      "developer_id": null,
+      "tester_id": null,
+      "retry_count": 0,
+      "blocked": false,
+      "notes": "",
+      "user_gate": false
+    },
+    {
+      "id": "T-009",
+      "title": "百炼网关、Embedding 网关与向量插件适配",
+      "type": "backend",
+      "description": "实现后端 AI Gateway、Embedding Gateway、SQLite 向量插件探针和检索降级适配层。百炼配置本地已存在但必须在开发前实测；SQLite 向量插件待验证，不可用时降级为 FTS5 / LIKE 并标注。",
+      "source_feature": "阶段2 后端基础设施 / 外部服务与检索适配",
+      "acceptanceCriteria": [
+        "用户后续在设置页只能看到模型和检索配置是否可用的状态，不会看到真实 API Key 或可还原密钥片段。",
+        "当向量插件不可用时，用户后续使用问答功能仍能看到清晰的降级状态，而不是静默失败。"
+      ],
+      "technicalChecks": [
+        "百炼聊天模型配置字段仅从 DASHSCOPE_API_KEY、BAILIAN_BASE_URL、BAILIAN_CHAT_MODEL 读取，代码和文档不硬编码真实密钥",
+        "百炼 Embedding 配置字段仅从 DASHSCOPE_API_KEY、BAILIAN_EMBEDDING_MODEL、BAILIAN_EMBEDDING_DIMENSIONS 读取",
+        "禁止使用百炼官方 SDK；必须通过 httpx.AsyncClient(trust_env=False) 调用 HTTP / OpenAI 兼容接口",
+        "如果本地百炼配置可用，聊天模型和 Embedding smoke test 通过；如果不可用，测试报告标记 Mock/fallback 验收，不得宣称真实服务联调通过",
+        "SQLite 向量插件加载探针可运行；插件不可用时自动降级为 FTS5 / LIKE 检索并在状态中标注",
+        "外部服务调用失败时有清晰错误处理和日志，不得静默吞错",
+        "python3.11 -m pytest backend/tests 通过",
+        "python3.11 -m ruff check backend/src backend/tests 通过",
+        "python3.11 -m mypy backend/src backend/tests 通过"
+      ],
+      "frontendIntegration": {
+        "required": false,
+        "pages": [],
+        "services": [],
+        "realApiEndpoints": [],
+        "mockExitCriteria": []
+      },
+      "externalServices": [
+        "阿里云百炼",
+        "阿里云百炼 Embedding",
+        "SQLite",
+        "SQLite FTS5",
+        "SQLite 向量插件"
+      ],
+      "dependencies": [
+        "T-008"
+      ],
+      "priority": 9,
+      "rules_files": [
+        "dev-standards/backend-dev.md",
+        "dev-standards/backend-layers.md",
+        "dev-standards/backend-plugin.md"
+      ],
+      "status": "passed",
+      "developer_id": null,
+      "tester_id": null,
+      "retry_count": 1,
+      "blocked": false,
+      "notes": "",
+      "user_gate": false
+    },
+    {
+      "id": "T-010",
+      "title": "账号登录与登录态真实闭环",
+      "type": "integration",
+      "description": "实现真实 Auth API、路由级认证依赖和前端 P01/P10 从 Mock 切换到真实登录、当前用户和退出登录接口。完成 Token 保存、刷新恢复和错误提示。",
+      "source_feature": "F01 / B02 / P01 / P10",
+      "acceptanceCriteria": [
+        "用户在登录页输入测试账号密码并点击登录，在 VITE_USE_MOCK=false 下页面调用真实后端 API 并进入客服工作台。",
+        "用户在登录页输入错误密码并点击登录，页面显示清晰的登录失败提示。",
+        "用户刷新登录后的页面，仍停留在登录后的后台页面；点击退出登录后回到登录页。",
+        "页面无 Mock-only 文案、Mock 账号提示或 [Mock] 标签。"
+      ],
+      "technicalChecks": [
+        "POST /api/auth/login、GET /api/auth/me、POST /api/auth/logout 符合 docs/api-contracts.md",
+        "get_current_user 路由级依赖实现，受保护路由无凭证或无效凭证返回 401 统一错误格式",
+        "前端 auth service 在 VITE_USE_MOCK=false 时不走 frontend/src/mocks/* 登录分支",
+        "浏览器或等价测试证明请求命中真实后端 API，而不是 Mock",
+        "后端 API 单元测试和集成测试通过",
+        "Frontend typecheck、lint、build passes",
+        "Backend ruff、mypy、pytest passes"
+      ],
+      "frontendIntegration": {
+        "required": true,
+        "pages": [
+          "P01 登录页",
+          "P10 账号与基础设置"
+        ],
+        "services": [
+          "frontend/src/services/auth.ts",
+          "frontend/src/services/settings.ts"
+        ],
+        "realApiEndpoints": [
+          "POST /api/auth/login",
+          "GET /api/auth/me",
+          "POST /api/auth/logout"
+        ],
+        "mockExitCriteria": [
+          "VITE_USE_MOCK=false 时登录、当前用户和退出登录请求全部命中真实后端 API。",
+          "前端本功能不再调用 frontend/src/mocks/* 的 auth 分支。",
+          "页面无 Mock-only 文案、Mock 账号提示或 [Mock] 标签。"
+        ]
+      },
+      "externalServices": [
+        "SQLite"
+      ],
+      "dependencies": [
+        "T-009"
+      ],
+      "priority": 10,
+      "rules_files": [
+        "dev-standards/frontend.md",
+        "dev-standards/backend-dev.md",
+        "dev-standards/backend-layers.md"
+      ],
+      "status": "passed",
+      "developer_id": "019e5876-93f2-7d70-9b61-114481616763",
+      "tester_id": "codex-tester",
+      "retry_count": 0,
+      "blocked": false,
+      "notes": "",
+      "user_gate": true
+    },
+    {
+      "id": "T-011",
+      "title": "工单池查询、筛选与接取真实闭环",
+      "type": "integration",
+      "description": "实现真实工单池查询、筛选和接取 API，并将 P03 工单池从 Mock 切换为真实后端接口。接取后更新当前页面列表状态。",
+      "source_feature": "F03 / B04 / P03",
+      "acceptanceCriteria": [
+        "用户在工单池页面选择状态、优先级或输入关键词，VITE_USE_MOCK=false 下页面通过真实后端 API 展示匹配工单。",
+        "用户点击待接工单的接取按钮，页面显示接取成功反馈，该工单从工单池列表中移除。",
+        "用户点击已被接取的工单时，页面显示清晰的失败提示，不会误显示接取成功。",
+        "页面无 Mock-only 文案、Mock 账号提示或 [Mock] 标签。"
+      ],
+      "technicalChecks": [
+        "GET /api/tickets 支持 scope=pool、status、priority、keyword、page、page_size，响应符合 docs/api-contracts.md",
+        "POST /api/tickets/{ticket_id}/claim 实现待接取到处理中的状态流转，并绑定当前账号",
+        "无凭证或无效凭证访问工单接口返回 401 统一错误格式",
+        "前端 tickets service 在 VITE_USE_MOCK=false 时不走 frontend/src/mocks/* 工单池分支",
+        "浏览器或等价测试证明请求命中真实后端 API，而不是 Mock",
+        "后端 API 单元测试和集成测试通过",
+        "Frontend typecheck、lint、build passes",
+        "Backend ruff、mypy、pytest passes"
+      ],
+      "frontendIntegration": {
+        "required": true,
+        "pages": [
+          "P03 工单池"
+        ],
+        "services": [
+          "frontend/src/services/tickets.ts"
+        ],
+        "realApiEndpoints": [
+          "GET /api/tickets",
+          "POST /api/tickets/{ticket_id}/claim"
+        ],
+        "mockExitCriteria": [
+          "VITE_USE_MOCK=false 时工单池查询、筛选和接取请求全部命中真实后端 API。",
+          "前端本功能不再调用 frontend/src/mocks/* 的 ticket pool 或 claim 分支。",
+          "页面无 Mock-only 文案、Mock 账号提示或 [Mock] 标签。"
+        ]
+      },
+      "externalServices": [
+        "SQLite"
+      ],
+      "dependencies": [
+        "T-010"
+      ],
+      "priority": 11,
+      "rules_files": [
+        "dev-standards/frontend.md",
+        "dev-standards/backend-dev.md",
+        "dev-standards/backend-layers.md"
+      ],
+      "status": "passed",
+      "developer_id": "019e588e-9ef9-7162-a374-8308c37b8fad",
+      "tester_id": "codex-tester",
+      "retry_count": 0,
+      "blocked": false,
+      "notes": "",
+      "user_gate": true
+    },
+    {
+      "id": "T-012",
+      "title": "我的工单与账号数据隔离真实闭环",
+      "type": "integration",
+      "description": "实现我的工单查询、状态筛选和工单详情入口，并将 P04 从 Mock 切换为真实后端接口。我的工单必须按当前登录账号过滤。",
+      "source_feature": "F04 / B04 / P04",
+      "acceptanceCriteria": [
+        "用户打开我的工单页面，VITE_USE_MOCK=false 下页面通过真实后端 API 展示当前账号已接取或已完成的工单。",
+        "用户切换处理中和已完成筛选，页面列表按当前账号相关工单收敛展示。",
+        "用户点击我的工单卡片，页面进入对应工单详情页。",
+        "页面无 Mock-only 文案、Mock 账号提示或 [Mock] 标签。"
+      ],
+      "technicalChecks": [
+        "GET /api/tickets 支持 scope=mine 并按当前认证账号过滤，不返回跨员工工单",
+        "GET /api/tickets/{ticket_id} 对当前账号不可见的工单返回 403 或符合契约的错误",
+        "前端 tickets service 在 VITE_USE_MOCK=false 时不走 frontend/src/mocks/* 我的工单分支",
+        "浏览器或等价测试证明请求命中真实后端 API，而不是 Mock",
+        "后端 API 单元测试和集成测试通过",
+        "Frontend typecheck、lint、build passes",
+        "Backend ruff、mypy、pytest passes"
+      ],
+      "frontendIntegration": {
+        "required": true,
+        "pages": [
+          "P04 我的工单"
+        ],
+        "services": [
+          "frontend/src/services/tickets.ts"
+        ],
+        "realApiEndpoints": [
+          "GET /api/tickets",
+          "GET /api/tickets/{ticket_id}"
+        ],
+        "mockExitCriteria": [
+          "VITE_USE_MOCK=false 时我的工单列表和详情入口请求全部命中真实后端 API。",
+          "前端本功能不再调用 frontend/src/mocks/* 的 my tickets 分支。",
+          "页面无 Mock-only 文案、Mock 账号提示或 [Mock] 标签。"
+        ]
+      },
+      "externalServices": [
+        "SQLite"
+      ],
+      "dependencies": [
+        "T-011"
+      ],
+      "priority": 12,
+      "rules_files": [
+        "dev-standards/frontend.md",
+        "dev-standards/backend-dev.md",
+        "dev-standards/backend-layers.md"
+      ],
+      "status": "passed",
+      "developer_id": "019e58b4-a83e-7cf0-9979-505bfcb5f8a0",
+      "tester_id": "codex-tester",
+      "retry_count": 1,
+      "blocked": false,
+      "notes": "",
+      "user_gate": true
+    },
+    {
+      "id": "T-013",
+      "title": "工单详情、会话回复与完成工单真实闭环",
+      "type": "integration",
+      "description": "实现真实工单详情、会话记录、员工发送回复和完成工单接口，并将 P05 基础会话处理从 Mock 切换为真实后端接口。AI 建议与知识引用在后续 AI 闭环任务补齐。",
+      "source_feature": "F05 / B05 / P05",
+      "acceptanceCriteria": [
+        "用户打开已接取工单详情页，VITE_USE_MOCK=false 下页面通过真实后端 API 展示工单信息和会话记录。",
+        "用户在回复编辑器输入内容并点击发送，页面会话列表新增员工回复气泡。",
+        "用户点击完成工单并填写处理摘要，页面显示工单状态已完成。",
+        "页面无 Mock-only 文案、Mock 账号提示或 [Mock] 标签。"
+      ],
+      "technicalChecks": [
+        "GET /api/tickets/{ticket_id}、GET /api/tickets/{ticket_id}/messages、POST /api/tickets/{ticket_id}/messages、POST /api/tickets/{ticket_id}/complete 符合 docs/api-contracts.md",
+        "只能完成当前账号已接取的工单；无权限返回 403 统一错误格式",
+        "会话消息按时间顺序展示，发送方枚举只使用 customer / employee / bot",
+        "前端 tickets service 在 VITE_USE_MOCK=false 时不走 frontend/src/mocks/* 工单详情、消息或完成分支",
+        "浏览器或等价测试证明请求命中真实后端 API，而不是 Mock",
+        "后端 API 单元测试和集成测试通过",
+        "Frontend typecheck、lint、build passes",
+        "Backend ruff、mypy、pytest passes"
+      ],
+      "frontendIntegration": {
+        "required": true,
+        "pages": [
+          "P05 工单详情与会话处理页"
+        ],
+        "services": [
+          "frontend/src/services/tickets.ts"
+        ],
+        "realApiEndpoints": [
+          "GET /api/tickets/{ticket_id}",
+          "GET /api/tickets/{ticket_id}/messages",
+          "POST /api/tickets/{ticket_id}/messages",
+          "POST /api/tickets/{ticket_id}/complete"
+        ],
+        "mockExitCriteria": [
+          "VITE_USE_MOCK=false 时工单详情、消息查询、发送回复和完成工单请求全部命中真实后端 API。",
+          "前端本功能不再调用 frontend/src/mocks/* 的 ticket detail、messages 或 complete 分支。",
+          "页面无 Mock-only 文案、Mock 账号提示或 [Mock] 标签。"
+        ]
+      },
+      "externalServices": [
+        "SQLite"
+      ],
+      "dependencies": [
+        "T-012"
+      ],
+      "priority": 13,
+      "rules_files": [
+        "dev-standards/frontend.md",
+        "dev-standards/backend-dev.md",
+        "dev-standards/backend-layers.md"
+      ],
+      "status": "passed",
+      "developer_id": null,
+      "tester_id": null,
+      "retry_count": 0,
+      "blocked": false,
+      "notes": "2026-06-25 PASS：真实详情、会话查询、发送回复、完成工单与 P05 真实前端联调通过；AI 建议与知识引用仍按计划留到 T-017。",
+      "user_gate": true
+    },
+    {
+      "id": "T-014",
+      "title": "知识库总览与 QA 管理真实闭环",
+      "type": "integration",
+      "description": "实现真实知识库总览、最近知识和 QA 增删改查接口，并将 P06/P07 从 Mock 切换为真实后端接口。新增或编辑 QA 时同步触发 Embedding；不可用时按降级状态标注。",
+      "source_feature": "F06 / F07 / B06 / P06 / P07",
+      "acceptanceCriteria": [
+        "用户打开知识库总览，VITE_USE_MOCK=false 下页面通过真实后端 API 展示 QA 数量、文档数量、最近更新时间和最近知识。",
+        "用户在 QA 库管理页新增一条 QA，保存后列表出现新 QA，并且知识库总览数量随之更新。",
+        "用户编辑、启停或删除 QA 后，当前页面列表展示更新结果。",
+        "页面无 Mock-only 文案、Mock 账号提示或 [Mock] 标签。"
+      ],
+      "technicalChecks": [
+        "GET /api/knowledge/overview、GET /api/knowledge/recent、GET /api/knowledge/qa、POST /api/knowledge/qa、PUT /api/knowledge/qa/{qa_id}、DELETE /api/knowledge/qa/{qa_id} 符合 docs/api-contracts.md",
+        "QA 新增和编辑触发 Embedding 生成；百炼 Embedding 不可用时标记关键词检索降级，不得宣称真实向量联调通过",
+        "SQLite 向量插件不可用时降级为 FTS5 / LIKE 并标注",
+        "前端 knowledge service 在 VITE_USE_MOCK=false 时不走 frontend/src/mocks/* 知识库或 QA 分支",
+        "浏览器或等价测试证明请求命中真实后端 API，而不是 Mock",
+        "必要服务 Key / Base URL 已按配置文件字段提供且未硬编码进代码",
+        "Tester 具备调用百炼 Embedding 完成真实联调的权限；缺失时测试报告标记 Mock/fallback 验收",
+        "后端 API 单元测试和集成测试通过",
+        "Frontend typecheck、lint、build passes",
+        "Backend ruff、mypy、pytest passes"
+      ],
+      "frontendIntegration": {
+        "required": true,
+        "pages": [
+          "P06 知识库总览",
+          "P07 QA 库管理"
+        ],
+        "services": [
+          "frontend/src/services/knowledge.ts"
+        ],
+        "realApiEndpoints": [
+          "GET /api/knowledge/overview",
+          "GET /api/knowledge/recent",
+          "GET /api/knowledge/qa",
+          "POST /api/knowledge/qa",
+          "PUT /api/knowledge/qa/{qa_id}",
+          "DELETE /api/knowledge/qa/{qa_id}"
+        ],
+        "mockExitCriteria": [
+          "VITE_USE_MOCK=false 时知识库总览、最近知识和 QA CRUD 请求全部命中真实后端 API。",
+          "前端本功能不再调用 frontend/src/mocks/* 的 knowledge 或 qa 分支。",
+          "页面无 Mock-only 文案、Mock 账号提示或 [Mock] 标签。"
+        ]
+      },
+      "externalServices": [
+        "SQLite",
+        "SQLite FTS5",
+        "SQLite 向量插件",
+        "阿里云百炼 Embedding"
+      ],
+      "dependencies": [
+        "T-013"
+      ],
+      "priority": 14,
+      "rules_files": [
+        "dev-standards/frontend.md",
+        "dev-standards/backend-dev.md",
+        "dev-standards/backend-layers.md",
+        "dev-standards/backend-plugin.md"
+      ],
+      "status": "passed",
+      "developer_id": null,
+      "tester_id": null,
+      "retry_count": 0,
+      "blocked": false,
+      "notes": "2026-06-25 PASS：P06/P07 真实知识库总览、最近知识、QA CRUD 与前端真实联调通过；SQLite vector 插件不可用时按 FTS5 fallback 标注。",
+      "user_gate": true
+    },
+    {
+      "id": "T-015",
+      "title": "文档入库真实闭环",
+      "type": "integration",
+      "description": "实现真实文档列表、上传、状态查询和删除接口，并将 P08 从 Mock 切换为真实后端接口。上传文件保存到本地目录，完成文本抽取、切片、Embedding 和入库状态更新；插件不可用时按关键词检索降级。",
+      "source_feature": "F08 / B07 / P08",
+      "acceptanceCriteria": [
+        "用户打开文档入库页，VITE_USE_MOCK=false 下页面通过真实后端 API 展示文档列表和入库状态。",
+        "用户上传一个支持的文档后，页面新增入库记录，并能看到处理中、已完成或失败状态。",
+        "用户删除文档后，该文档从列表中消失，页面提示删除成功。",
+        "页面无 Mock-only 文案、Mock 账号提示或 [Mock] 标签。"
+      ],
+      "technicalChecks": [
+        "GET /api/documents、POST /api/documents、GET /api/documents/{document_id}、DELETE /api/documents/{document_id} 符合 docs/api-contracts.md",
+        "上传文件保存到 UPLOAD_DIR，真实文件存在且删除文档时不再参与检索",
+        "文档处理状态只使用 processing / completed / failed",
+        "文档切片和 Embedding 写入 SQLite；百炼 Embedding 或向量插件不可用时降级为 FTS5 / LIKE 并标注",
+        "前端 documents service 在 VITE_USE_MOCK=false 时不走 frontend/src/mocks/* 文档分支",
+        "浏览器或等价测试证明请求命中真实后端 API，而不是 Mock",
+        "必要服务 Key / Base URL / UPLOAD_DIR 已按配置文件字段提供且未硬编码进代码",
+        "Tester 具备文件上传和百炼 Embedding 调用权限；缺失时测试报告标记 Mock/fallback 验收",
+        "后端 API 单元测试和集成测试通过",
+        "Frontend typecheck、lint、build passes",
+        "Backend ruff、mypy、pytest passes"
+      ],
+      "frontendIntegration": {
+        "required": true,
+        "pages": [
+          "P08 文档入库"
+        ],
+        "services": [
+          "frontend/src/services/documents.ts"
+        ],
+        "realApiEndpoints": [
+          "GET /api/documents",
+          "POST /api/documents",
+          "GET /api/documents/{document_id}",
+          "DELETE /api/documents/{document_id}"
+        ],
+        "mockExitCriteria": [
+          "VITE_USE_MOCK=false 时文档列表、上传、状态查询和删除请求全部命中真实后端 API。",
+          "前端本功能不再调用 frontend/src/mocks/* 的 documents 分支。",
+          "页面无 Mock-only 文案、Mock 账号提示或 [Mock] 标签。"
+        ]
+      },
+      "externalServices": [
+        "SQLite",
+        "SQLite FTS5",
+        "SQLite 向量插件",
+        "阿里云百炼 Embedding",
+        "本地文件存储"
+      ],
+      "dependencies": [
+        "T-014"
+      ],
+      "priority": 15,
+      "rules_files": [
+        "dev-standards/frontend.md",
+        "dev-standards/backend-dev.md",
+        "dev-standards/backend-layers.md",
+        "dev-standards/backend-plugin.md"
+      ],
+      "status": "passed",
+      "developer_id": "019efe91-7433-73f0-99b3-3db7fd490a59",
+      "tester_id": "019efe9b-d4cb-7873-b284-4ade8b346e9b",
+      "retry_count": 0,
+      "blocked": false,
+      "notes": "2026-06-25 PASS：文档列表、上传、状态查询、删除、文件落盘、切片、百炼 Embedding JSON 写入 SQLite、FTS5 降级检索、P08 真实前端联调通过；SQLite vector 插件未配置，按 FTS5 fallback 标注。",
+      "user_gate": true
+    },
+    {
+      "id": "T-016",
+      "title": "检索与智能问答调试真实闭环",
+      "type": "integration",
+      "description": "实现真实检索适配和 AI 问答编排，包括 QA 优先命中、模糊反问、文档检索生成、引用来源和最近 3 轮上下文，并将 P09 从 Mock 切换为真实后端接口。",
+      "source_feature": "F09 / B08 / B09 / P09",
+      "acceptanceCriteria": [
+        "用户在智能问答调试页输入可命中 QA 的问题，VITE_USE_MOCK=false 下页面通过真实后端 API 展示直接答案和 QA 引用来源。",
+        "用户输入信息不完整的问题，页面展示反问建议，而不是强行给出完整答案。",
+        "用户输入文档相关问题，页面展示生成答案和文档引用来源；如果外部服务不可用，页面展示清晰的降级或失败提示。",
+        "用户连续追问时，页面能体现最近上下文效果；页面无 Mock-only 文案、Mock 账号提示或 [Mock] 标签。"
+      ],
+      "technicalChecks": [
+        "POST /api/assistant/ask 符合 docs/api-contracts.md，并支持 quick / ticket / debug scene",
+        "QA 相似度阈值按 PRD 固定为 0.8，命中时优先返回 qa_direct",
+        "模糊问题返回 clarification 和 missing_fields，不强行生成答案",
+        "问题明确且 QA 未命中时执行文档检索生成，返回 generated、answer 和 references",
+        "短期上下文最多使用最近 3 轮",
+        "百炼聊天模型通过 httpx.AsyncClient(trust_env=False) 调用，禁止使用官方 SDK，禁止继承环境代理",
+        "SQLite 向量插件不可用时降级为 FTS5 / LIKE，并在测试报告标注",
+        "前端 assistant service 在 VITE_USE_MOCK=false 时不走 frontend/src/mocks/* assistant 分支",
+        "浏览器或等价测试证明请求命中真实后端 API，而不是 Mock",
+        "必要服务 Key / Base URL 已按配置文件字段提供且未硬编码进代码",
+        "Tester 具备调用百炼和百炼 Embedding 完成真实联调的权限；缺失时测试报告标记 Mock/fallback 验收",
+        "后端 API 单元测试和集成测试通过",
+        "Frontend typecheck、lint、build passes",
+        "Backend ruff、mypy、pytest passes"
+      ],
+      "frontendIntegration": {
+        "required": true,
+        "pages": [
+          "P09 智能问答调试"
+        ],
+        "services": [
+          "frontend/src/services/assistant.ts",
+          "frontend/src/services/knowledge.ts",
+          "frontend/src/services/documents.ts"
+        ],
+        "realApiEndpoints": [
+          "POST /api/assistant/ask",
+          "GET /api/knowledge/qa",
+          "GET /api/documents"
+        ],
+        "mockExitCriteria": [
+          "VITE_USE_MOCK=false 时智能问答调试请求命中真实后端 API，辅助列表数据也来自真实后端 API。",
+          "前端本功能不再调用 frontend/src/mocks/* 的 assistant、qa 或 documents 分支。",
+          "页面无 Mock-only 文案、Mock 账号提示或 [Mock] 标签。"
+        ]
+      },
+      "externalServices": [
+        "SQLite",
+        "SQLite FTS5",
+        "SQLite 向量插件",
+        "阿里云百炼",
+        "阿里云百炼 Embedding"
+      ],
+      "dependencies": [
+        "T-015"
+      ],
+      "priority": 16,
+      "rules_files": [
+        "dev-standards/frontend.md",
+        "dev-standards/backend-dev.md",
+        "dev-standards/backend-layers.md",
+        "dev-standards/backend-plugin.md"
+      ],
+      "status": "passed",
+      "developer_id": "019f02af-f504-7cf2-aa5b-60a9e3952d7d",
+      "tester_id": "019f02b5-fc87-7f52-b660-a34b0e9c81fd",
+      "retry_count": 0,
+      "blocked": false,
+      "notes": "2026-06-26 PASS：/api/assistant/ask 支持 quick/ticket/debug，QA direct、clarification、文档 generated、最近 3 轮上下文与 P09 真实前端联调通过；SQLite vector 插件未配置，按 FTS5 fallback 标注。",
+      "user_gate": true
+    },
+    {
+      "id": "T-017",
+      "title": "工单详情 AI 建议与引用真实闭环",
+      "type": "integration",
+      "description": "将 P05 工单详情的 AI 建议、采用建议和引用来源补齐为真实后端联调，复用真实 /api/assistant/ask，并支持将建议填入回复编辑器后发送。",
+      "source_feature": "F05 / B09 / P05",
+      "acceptanceCriteria": [
+        "用户在工单详情页点击 AI 建议或输入当前客户问题，VITE_USE_MOCK=false 下页面通过真实后端 API 展示建议回复、反问或生成答案。",
+        "用户在 AI 建议面板查看引用来源，能看到 QA 或文档来源标题与片段。",
+        "用户点击采用建议，建议内容填入回复编辑器；点击发送后会话列表新增员工回复。",
+        "页面无 Mock-only 文案、Mock 账号提示或 [Mock] 标签。"
+      ],
+      "technicalChecks": [
+        "P05 调用 POST /api/assistant/ask 时使用 scene=ticket 并传入 ticket_id 和最近上下文",
+        "采用建议后发送回复调用 POST /api/tickets/{ticket_id}/messages，used_assistant_answer_id 正确传递",
+        "AI 回答结果只展示 answer_type、answer、missing_fields、references 和业务可见字段，不展示模型版本、请求号、原始上下文或内部链路",
+        "前端 assistant 和 tickets service 在 VITE_USE_MOCK=false 时不走 frontend/src/mocks/* 工单 AI 建议分支",
+        "浏览器或等价测试证明请求命中真实后端 API，而不是 Mock",
+        "外部服务调用失败时页面展示清晰错误或降级提示，不静默吞错",
+        "后端 API 单元测试和集成测试通过",
+        "Frontend typecheck、lint、build passes",
+        "Backend ruff、mypy、pytest passes"
+      ],
+      "frontendIntegration": {
+        "required": true,
+        "pages": [
+          "P05 工单详情与会话处理页"
+        ],
+        "services": [
+          "frontend/src/services/assistant.ts",
+          "frontend/src/services/tickets.ts"
+        ],
+        "realApiEndpoints": [
+          "POST /api/assistant/ask",
+          "POST /api/tickets/{ticket_id}/messages",
+          "GET /api/tickets/{ticket_id}/messages"
+        ],
+        "mockExitCriteria": [
+          "VITE_USE_MOCK=false 时工单详情 AI 建议、采用建议和发送回复请求全部命中真实后端 API。",
+          "前端本功能不再调用 frontend/src/mocks/* 的 ticket assistant 或 messages 分支。",
+          "页面无 Mock-only 文案、Mock 账号提示或 [Mock] 标签。"
+        ]
+      },
+      "externalServices": [
+        "SQLite",
+        "SQLite FTS5",
+        "SQLite 向量插件",
+        "阿里云百炼",
+        "阿里云百炼 Embedding"
+      ],
+      "dependencies": [
+        "T-016",
+        "T-013"
+      ],
+      "priority": 17,
+      "rules_files": [
+        "dev-standards/frontend.md",
+        "dev-standards/backend-dev.md",
+        "dev-standards/backend-layers.md",
+        "dev-standards/backend-plugin.md"
+      ],
+      "status": "passed",
+      "developer_id": "019f12a8-bc7d-7363-99af-6a9b1f1ce97f",
+      "tester_id": "019f12b0-7828-7801-ac3d-ed9c99ae9dd5",
+      "retry_count": 0,
+      "blocked": false,
+      "notes": "2026-06-29 PASS：P05 真实模式 AI 建议、引用展示、采用建议、发送回复携带 used_assistant_answer_id、失败提示与浏览器真实联调通过；测试使用临时 DB，未污染默认运行库。",
+      "user_gate": true
+    },
+    {
+      "id": "T-018",
+      "title": "客服工作台与账号设置补齐真实闭环",
+      "type": "integration",
+      "description": "实现真实工作台概览、待处理工单快捷区、AI 快捷问答入口、知识库快捷入口和账号设置接口，并将 P02/P10 从 Mock 切换为真实后端接口。",
+      "source_feature": "F02 / F10 / B03 / B10 / P02 / P10",
+      "acceptanceCriteria": [
+        "用户进入客服工作台，VITE_USE_MOCK=false 下页面通过真实后端 API 展示工单统计、QA 数量、文档数量和最近知识更新时间。",
+        "用户在工作台待处理工单快捷区点击工单，页面进入对应工单详情页。",
+        "用户在工作台 AI 快捷问答入口输入问题，页面通过真实后端 API 展示回答、反问或引用来源；外部服务不可用时展示清晰降级提示。",
+        "用户进入账号与基础设置页，看到当前账号、数据库和模型配置状态，但看不到任何真实密钥；页面无 Mock-only 文案、Mock 账号提示或 [Mock] 标签。"
+      ],
+      "technicalChecks": [
+        "GET /api/dashboard/summary、GET /api/dashboard/tickets、GET /api/settings/account、POST /api/auth/logout、POST /api/assistant/ask 符合 docs/api-contracts.md",
+        "设置页只返回 api_key_configured 等布尔或状态字段，不返回真实 Key、Token 或可还原片段",
+        "工作台统计来自真实 SQLite 数据，不使用硬编码 Mock 数字",
+        "前端 dashboard、settings、assistant service 在 VITE_USE_MOCK=false 时不走 frontend/src/mocks/* 对应分支",
+        "浏览器或等价测试证明请求命中真实后端 API，而不是 Mock",
+        "必要服务 Key / Base URL 已按配置文件字段提供且未硬编码进代码",
+        "Tester 具备调用百炼完成真实联调的权限；缺失时测试报告标记 Mock/fallback 验收",
+        "后端 API 单元测试和集成测试通过",
+        "Frontend typecheck、lint、build passes",
+        "Backend ruff、mypy、pytest passes"
+      ],
+      "frontendIntegration": {
+        "required": true,
+        "pages": [
+          "P02 客服工作台",
+          "P10 账号与基础设置"
+        ],
+        "services": [
+          "frontend/src/services/dashboard.ts",
+          "frontend/src/services/settings.ts",
+          "frontend/src/services/assistant.ts",
+          "frontend/src/services/auth.ts"
+        ],
+        "realApiEndpoints": [
+          "GET /api/dashboard/summary",
+          "GET /api/dashboard/tickets",
+          "POST /api/assistant/ask",
+          "GET /api/settings/account",
+          "POST /api/auth/logout"
+        ],
+        "mockExitCriteria": [
+          "VITE_USE_MOCK=false 时工作台、快捷问答、账号设置和退出登录请求全部命中真实后端 API。",
+          "前端本功能不再调用 frontend/src/mocks/* 的 dashboard、assistant、settings 或 logout 分支。",
+          "页面无 Mock-only 文案、Mock 账号提示或 [Mock] 标签。"
+        ]
+      },
+      "externalServices": [
+        "SQLite",
+        "SQLite FTS5",
+        "SQLite 向量插件",
+        "阿里云百炼",
+        "阿里云百炼 Embedding"
+      ],
+      "dependencies": [
+        "T-017"
+      ],
+      "priority": 18,
+      "rules_files": [
+        "dev-standards/frontend.md",
+        "dev-standards/backend-dev.md",
+        "dev-standards/backend-layers.md",
+        "dev-standards/backend-plugin.md"
+      ],
+      "status": "passed",
+      "developer_id": "019f13e6-52d8-7a60-8af9-c70793ec914e",
+      "tester_id": "019f1418-bd76-7661-880f-6ef557532d4d",
+      "retry_count": 0,
+      "blocked": false,
+      "notes": "2026-06-29 PASS：Planner/Developer/Tester 子智能体链路完成；工作台 summary/tickets/quick ask、settings/account、logout 真实闭环通过。复验修复 real mode 下 service 顶层静态 mock import，浏览器网络不再命中 /src/mocks/*；P02/P10 均未越界实现复杂报表、权限、密码或账号注销。",
+      "user_gate": true
+    },
+    {
+      "id": "T-019",
+      "title": "E2E 回归与 startup 文档",
+      "type": "integration",
+      "description": "执行最终 E2E 回归，覆盖登录、接单、工单详情、AI 建议、回复、完成工单、QA 维护、文档入库和智能问答调试；生成 docs/startup.md。该任务只做全系统回归和启动文档，不替代前面业务任务的首次真实联调。",
+      "source_feature": "阶段4 E2E 回归与启动文档",
+      "acceptanceCriteria": [
+        "用户按 docs/startup.md 启动系统后，在浏览器中完成登录、查看工作台、接取工单、进入工单详情、使用 AI 建议、发送回复并完成工单的完整路径。",
+        "用户新增或编辑 QA 后，在智能问答调试页能看到对应问答效果；如果外部服务不可用，页面展示清晰降级提示。",
+        "用户上传文档并完成入库后，在智能问答调试页能看到文档引用来源；如果向量插件不可用，页面和测试报告标注 FTS5 / LIKE 降级。",
+        "全系统在 VITE_USE_MOCK=false 下运行，页面无 Mock-only 文案、Mock 账号提示或 [Mock] 标签。"
+      ],
+      "technicalChecks": [
+        "Frontend typecheck、lint、build passes",
+        "Backend ruff、mypy、pytest passes",
+        "关键 E2E 流程通过：登录 -> 接单 -> 工单详情 -> AI 建议 -> 发送回复 -> 完成工单 -> QA 维护 -> 文档入库 -> 问答调试",
+        "浏览器或等价测试证明主要页面请求命中真实后端 API，而不是 Mock",
+        "docs/startup.md 已生成，包含环境要求、启动命令、默认配置字段、Mock/真实模式说明和常见问题",
+        "docs/startup.md 不包含真实 API Key、Token、密码或可还原密钥片段",
+        "百炼和百炼 Embedding 若可用则完成真实调用；不可用时测试报告明确标记 Mock/fallback 验收",
+        "SQLite 向量插件若不可用，测试报告明确标记降级为 FTS5 / LIKE",
+        "最终 E2E 不新增未在 PRD/Plan/api-contracts.md 中定义的业务能力"
+      ],
+      "frontendIntegration": {
+        "required": true,
+        "pages": [
+          "P01 登录页",
+          "P02 客服工作台",
+          "P03 工单池",
+          "P04 我的工单",
+          "P05 工单详情与会话处理页",
+          "P06 知识库总览",
+          "P07 QA 库管理",
+          "P08 文档入库",
+          "P09 智能问答调试",
+          "P10 账号与基础设置"
+        ],
+        "services": [
+          "frontend/src/services/auth.ts",
+          "frontend/src/services/dashboard.ts",
+          "frontend/src/services/tickets.ts",
+          "frontend/src/services/knowledge.ts",
+          "frontend/src/services/documents.ts",
+          "frontend/src/services/assistant.ts",
+          "frontend/src/services/settings.ts"
+        ],
+        "realApiEndpoints": [
+          "GET /health",
+          "POST /api/auth/login",
+          "GET /api/auth/me",
+          "POST /api/auth/logout",
+          "GET /api/dashboard/summary",
+          "GET /api/dashboard/tickets",
+          "GET /api/tickets",
+          "GET /api/tickets/{ticket_id}",
+          "POST /api/tickets/{ticket_id}/claim",
+          "POST /api/tickets/{ticket_id}/complete",
+          "GET /api/tickets/{ticket_id}/messages",
+          "POST /api/tickets/{ticket_id}/messages",
+          "POST /api/assistant/ask",
+          "GET /api/knowledge/overview",
+          "GET /api/knowledge/recent",
+          "GET /api/knowledge/qa",
+          "POST /api/knowledge/qa",
+          "PUT /api/knowledge/qa/{qa_id}",
+          "DELETE /api/knowledge/qa/{qa_id}",
+          "GET /api/documents",
+          "POST /api/documents",
+          "GET /api/documents/{document_id}",
+          "DELETE /api/documents/{document_id}",
+          "GET /api/settings/account"
+        ],
+        "mockExitCriteria": [
+          "VITE_USE_MOCK=false 时最终 E2E 覆盖的所有主要页面请求均命中真实后端 API。",
+          "前端所有已闭环功能不再调用 frontend/src/mocks/* 的业务分支。",
+          "页面无 Mock-only 文案、Mock 账号提示或 [Mock] 标签。"
+        ]
+      },
+      "externalServices": [
+        "阿里云百炼",
+        "阿里云百炼 Embedding",
+        "SQLite",
+        "SQLite FTS5",
+        "SQLite 向量插件",
+        "本地文件存储"
+      ],
+      "dependencies": [
+        "T-018"
+      ],
+      "priority": 19,
+      "rules_files": [
+        "dev-standards/frontend.md",
+        "dev-standards/backend-dev.md",
+        "dev-standards/backend-layers.md",
+        "dev-standards/backend-plugin.md"
+      ],
+      "status": "passed",
+      "developer_id": "019f1469-4ccc-73a2-bdb2-de77477e0dd6",
+      "tester_id": "019f14d3-f7c8-7551-9df9-4ca17634ac6a",
+      "retry_count": 0,
+      "blocked": false,
+      "notes": "2026-06-29 PASS：Planner/Developer/Tester 子智能体链路完成；规格审查和质量审查均通过。docs/startup.md 已生成并去除明文演示密码，提供本机安全重置演示密码命令；最终 E2E 报告和 Final Tester 验收通过，真实模式无 Mock 命中，SQLite vector 按 FTS5/LIKE fallback 标注。",
+      "user_gate": true
+    }
+  ]
+}

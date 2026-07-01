@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>QA 库管理 - 客服机器人</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-surface": "#2e3039",
+                        "on-surface-variant": "#434655",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "inverse-primary": "#b4c5ff",
+                        "outline-variant": "#c3c6d7",
+                        "primary": "#004ac6",
+                        "surface-bright": "#faf8ff",
+                        "tertiary": "#943700",
+                        "secondary": "#006b5f",
+                        "on-background": "#191b23",
+                        "error": "#ba1a1a",
+                        "secondary-fixed": "#71f8e4",
+                        "surface-variant": "#e1e2ed",
+                        "tertiary-container": "#bc4800",
+                        "surface-container-low": "#f3f3fe",
+                        "primary-container": "#2563eb",
+                        "error-container": "#ffdad6",
+                        "surface-container-high": "#e7e7f3",
+                        "surface-tint": "#0053db",
+                        "secondary-fixed-dim": "#4fdbc8",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#eeefff",
+                        "secondary-container": "#6df5e1",
+                        "on-surface": "#191b23",
+                        "on-secondary-fixed-variant": "#005048",
+                        "tertiary-fixed-dim": "#ffb596",
+                        "outline": "#737686",
+                        "on-tertiary-container": "#ffede6",
+                        "on-secondary-container": "#006f64",
+                        "surface-container": "#ededf9",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "tertiary-fixed": "#ffdbcd",
+                        "surface": "#faf8ff",
+                        "background": "#faf8ff",
+                        "surface-container-highest": "#e1e2ed",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed": "#00201c",
+                        "surface-dim": "#d9d9e5",
+                        "on-tertiary-fixed-variant": "#7d2d00",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed": "#360f00",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed": "#dbe1ff",
+                        "inverse-on-surface": "#f0f0fb",
+                        "on-primary-fixed": "#00174b",
+                        "on-error": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "inset-squish-sm": "4px 8px",
+                        "inset-squish-md": "8px 16px",
+                        "container-padding": "24px",
+                        "stack-md": "16px",
+                        "stack-sm": "8px",
+                        "gutter": "16px",
+                        "unit": "4px",
+                        "stack-lg": "24px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Geist"],
+                        "headline-sm": ["Outfit"],
+                        "display-lg": ["Outfit"],
+                        "body-sm": ["Geist"],
+                        "headline-md": ["Outfit"],
+                        "body-md": ["Geist"],
+                        "mono-sm": ["Geist"],
+                        "body-lg": ["Geist"]
+                    },
+                    "fontSize": {
+                        "label-md": ["13px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "letterSpacing": "0", "fontWeight": "500" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-sm": ["12px", { "lineHeight": "18px", "letterSpacing": "0", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400" }],
+                        "mono-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "0", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Geist', sans-serif; background-color: #faf8ff; color: #191b23; }
+        .table-row-hover:hover { background-color: #f3f3fe; }
+        /* Custom Scrollbar for inner areas if needed */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c3c6d7; border-radius: 3px; }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased selection:bg-primary-container/20 overflow-hidden">
+<!-- JSON Component: SideNavBar -->
+<nav class="w-[224px] h-screen fixed left-0 top-0 bg-surface dark:bg-inverse-surface border-r border-outline-variant dark:border-outline flex flex-col py-stack-lg gap-stack-sm z-50">
+<div class="px-container-padding mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-weight="fill" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+<span class="font-headline-sm text-headline-sm font-bold text-primary dark:text-inverse-primary truncate">客服机器人</span>
+</div>
+<div class="flex-1 overflow-y-auto px-2 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT transition-all duration-200 ease-in-out text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-on-surface-variant/10 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+                客服工作台
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT transition-all duration-200 ease-in-out text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-on-surface-variant/10 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-[20px]">list_alt</span>
+                工单池
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT transition-all duration-200 ease-in-out text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-on-surface-variant/10 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-[20px]">assignment_ind</span>
+                我的工单
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT transition-all duration-200 ease-in-out text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-on-surface-variant/10 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-[20px]">auto_stories</span>
+                知识库总览
+            </a>
+<!-- Active State -->
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT transition-all duration-200 ease-in-out text-primary dark:text-primary-fixed-dim bg-primary-container/10 font-bold border-r-4 border-primary font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-[20px]" data-weight="fill" style="font-variation-settings: 'FILL' 1;">quiz</span>
+                QA 库管理
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT transition-all duration-200 ease-in-out text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-on-surface-variant/10 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-[20px]">upload_file</span>
+                文档入库
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT transition-all duration-200 ease-in-out text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-on-surface-variant/10 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-[20px]">smart_toy</span>
+                智能问答调试
+            </a>
+</div>
+</nav>
+<!-- JSON Component: TopNavBar -->
+<header class="h-[56px] fixed top-0 right-0 left-[224px] z-40 bg-surface-container-lowest dark:bg-inverse-surface border-b border-outline-variant dark:border-outline flex justify-between items-center px-container-padding">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">QA 库管理</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="font-label-md text-label-md text-on-surface-variant">当前账号：客服一组员工</span>
+<div class="flex items-center gap-2">
+<button class="p-1.5 text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors rounded-DEFAULT hover:bg-surface-container-low">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+<button class="p-1.5 text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors rounded-DEFAULT hover:bg-surface-container-low">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+</div>
+<div class="w-px h-4 bg-outline-variant mx-2"></div>
+<button class="font-label-md text-label-md text-error hover:opacity-80 transition-opacity cursor-pointer">
+                退出
+            </button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pl-[224px] pt-[56px] h-screen overflow-y-auto">
+<div class="p-container-padding max-w-[1600px] mx-auto flex flex-col gap-stack-lg">
+<!-- Action Bar -->
+<div class="flex items-center justify-between">
+<!-- Search -->
+<div class="relative w-[360px]">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
+<input class="w-full h-[36px] pl-9 pr-3 rounded-DEFAULT border border-outline-variant bg-surface-container-lowest text-body-sm text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow placeholder:text-outline/70" placeholder="搜索问题或答案摘要..." type="text"/>
+</div>
+<!-- Primary Action -->
+<button class="h-[36px] px-4 bg-primary text-on-primary rounded-DEFAULT font-label-md text-label-md flex items-center gap-1.5 hover:bg-primary/90 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                    新增 QA
+                </button>
+</div>
+<!-- Data Table Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg flex flex-col shadow-sm">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant h-[40px]">
+<th class="px-4 font-label-md text-label-md text-outline font-medium w-[25%]">问题</th>
+<th class="px-4 font-label-md text-label-md text-outline font-medium w-[40%]">答案摘要</th>
+<th class="px-4 font-label-md text-label-md text-outline font-medium w-[10%]">状态</th>
+<th class="px-4 font-label-md text-label-md text-outline font-medium w-[15%]">更新时间</th>
+<th class="px-4 font-label-md text-label-md text-outline font-medium w-[10%] text-right">操作</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<!-- Row 1 -->
+<tr class="table-row-hover h-[48px] group transition-colors">
+<td class="px-4 font-body-md text-body-md text-on-surface truncate max-w-0 font-medium">发票怎么下载？</td>
+<td class="px-4 font-body-md text-body-md text-on-surface-variant truncate max-w-0">可以在订单详情页点击发票申请，电子发票将发送至您的邮箱。</td>
+<td class="px-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-[8px] bg-[#DCFCE7] text-[#166534] font-label-md text-[11px] leading-tight">已发布</span>
+</td>
+<td class="px-4 font-mono-sm text-mono-sm text-on-surface-variant">2023-10-26 14:30</td>
+<td class="px-4 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1 text-primary hover:bg-primary/10 rounded" title="编辑">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="p-1 text-error hover:bg-error/10 rounded" title="删除">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="table-row-hover h-[48px] group transition-colors">
+<td class="px-4 font-body-md text-body-md text-on-surface truncate max-w-0 font-medium">退款多久到账？</td>
+<td class="px-4 font-body-md text-body-md text-on-surface-variant truncate max-w-0">预计1-3个工作日原路退回至您的支付账户，请耐心等待。</td>
+<td class="px-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-[8px] bg-surface-container-high text-on-surface-variant font-label-md text-[11px] leading-tight">草稿</span>
+</td>
+<td class="px-4 font-mono-sm text-mono-sm text-on-surface-variant">2023-10-26 09:15</td>
+<td class="px-4 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1 text-primary hover:bg-primary/10 rounded" title="编辑">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="p-1 text-error hover:bg-error/10 rounded" title="删除">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="table-row-hover h-[48px] group transition-colors">
+<td class="px-4 font-body-md text-body-md text-on-surface truncate max-w-0 font-medium">支付状态为什么延迟？</td>
+<td class="px-4 font-body-md text-body-md text-on-surface-variant truncate max-w-0">网络波动或银行结算通道拥堵可能导致短暂延迟，建议5分钟后刷新。</td>
+<td class="px-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-[8px] bg-[#DCFCE7] text-[#166534] font-label-md text-[11px] leading-tight">已发布</span>
+</td>
+<td class="px-4 font-mono-sm text-mono-sm text-on-surface-variant">2023-10-25 10:00</td>
+<td class="px-4 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1 text-primary hover:bg-primary/10 rounded" title="编辑">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="p-1 text-error hover:bg-error/10 rounded" title="删除">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Footer -->
+<div class="px-4 py-3 border-t border-outline-variant bg-surface-container-lowest flex items-center justify-between">
+<span class="font-body-sm text-body-sm text-outline">共 3 条记录</span>
+<div class="flex items-center gap-1">
+<button class="p-1 text-outline-variant hover:text-on-surface transition-colors cursor-not-allowed" disabled="">
+<span class="material-symbols-outlined text-[20px]">chevron_left</span>
+</button>
+<button class="w-7 h-7 rounded border border-primary bg-primary-container/10 text-primary font-label-md text-label-md flex items-center justify-center">1</button>
+<button class="p-1 text-outline-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Overlay: Edit Dialog Preview -->
+<div class="fixed inset-0 z-50 bg-[#18181B]/40 flex items-center justify-center backdrop-blur-[2px]">
+<!-- Modal Card -->
+<div class="w-[600px] bg-surface-container-lowest rounded-[12px] shadow-xl flex flex-col border border-outline-variant overflow-hidden transform scale-100 transition-transform">
+<!-- Header -->
+<div class="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-surface">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold">编辑 QA</h2>
+<button class="text-outline hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Body -->
+<div class="p-6 flex flex-col gap-5">
+<!-- Field: Question -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface-variant flex items-center gap-1">
+<span class="text-error">*</span> 问题
+                    </label>
+<input class="w-full h-[36px] px-3 rounded-DEFAULT border border-outline-variant bg-surface-container-lowest text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow" type="text" value="发票怎么下载？"/>
+</div>
+<!-- Field: Answer -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface-variant flex items-center gap-1">
+<span class="text-error">*</span> 答案摘要
+                    </label>
+<textarea class="w-full p-3 rounded-DEFAULT border border-outline-variant bg-surface-container-lowest text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow resize-none" rows="4">可以在订单详情页点击发票申请，电子发票将发送至您的邮箱。</textarea>
+<div class="text-right font-body-sm text-body-sm text-outline mt-1">29 / 500</div>
+</div>
+<!-- Field: Status -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface-variant">状态</label>
+<div class="relative">
+<select class="w-full h-[36px] px-3 pr-8 rounded-DEFAULT border border-outline-variant bg-surface-container-lowest text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow appearance-none cursor-pointer">
+<option selected="" value="published">已发布</option>
+<option value="draft">草稿</option>
+<option value="archived">已归档</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<div class="px-6 py-4 border-t border-outline-variant bg-surface flex justify-end gap-3">
+<button class="h-[36px] px-4 bg-surface-container-lowest border border-outline-variant text-on-surface rounded-DEFAULT font-label-md text-label-md hover:bg-surface-container-low transition-colors">
+                    取消
+                </button>
+<button class="h-[36px] px-4 bg-primary text-on-primary rounded-DEFAULT font-label-md text-label-md hover:bg-primary/90 transition-colors shadow-sm">
+                    保存更改
+                </button>
+</div>
+</div>
+</div>
+</body></html>

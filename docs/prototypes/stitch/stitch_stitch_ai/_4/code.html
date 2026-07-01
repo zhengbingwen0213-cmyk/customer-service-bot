@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>我的工单 - 客服机器人</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Outfit:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-surface": "#2e3039",
+                        "on-surface-variant": "#434655",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "inverse-primary": "#b4c5ff",
+                        "outline-variant": "#c3c6d7",
+                        "primary": "#004ac6",
+                        "surface-bright": "#faf8ff",
+                        "tertiary": "#943700",
+                        "secondary": "#006b5f",
+                        "on-background": "#191b23",
+                        "error": "#ba1a1a",
+                        "secondary-fixed": "#71f8e4",
+                        "surface-variant": "#e1e2ed",
+                        "tertiary-container": "#bc4800",
+                        "surface-container-low": "#f3f3fe",
+                        "primary-container": "#2563eb",
+                        "error-container": "#ffdad6",
+                        "surface-container-high": "#e7e7f3",
+                        "surface-tint": "#0053db",
+                        "secondary-fixed-dim": "#4fdbc8",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#eeefff",
+                        "secondary-container": "#6df5e1",
+                        "on-surface": "#191b23",
+                        "on-secondary-fixed-variant": "#005048",
+                        "tertiary-fixed-dim": "#ffb596",
+                        "outline": "#737686",
+                        "on-tertiary-container": "#ffede6",
+                        "on-secondary-container": "#006f64",
+                        "surface-container": "#ededf9",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "tertiary-fixed": "#ffdbcd",
+                        "surface": "#faf8ff",
+                        "background": "#faf8ff",
+                        "surface-container-highest": "#e1e2ed",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed": "#00201c",
+                        "surface-dim": "#d9d9e5",
+                        "on-tertiary-fixed-variant": "#7d2d00",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed": "#360f00",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed": "#dbe1ff",
+                        "inverse-on-surface": "#f0f0fb",
+                        "on-primary-fixed": "#00174b",
+                        "on-error": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "inset-squish-sm": "4px 8px",
+                        "inset-squish-md": "8px 16px",
+                        "container-padding": "24px",
+                        "stack-md": "16px",
+                        "stack-sm": "8px",
+                        "gutter": "16px",
+                        "unit": "4px",
+                        "stack-lg": "24px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Geist"],
+                        "headline-sm": ["Outfit"],
+                        "display-lg": ["Outfit"],
+                        "body-sm": ["Geist"],
+                        "headline-md": ["Outfit"],
+                        "body-md": ["Geist"],
+                        "mono-sm": ["Geist"],
+                        "body-lg": ["Geist"]
+                    },
+                    "fontSize": {
+                        "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "letterSpacing": "0", "fontWeight": "500"}],
+                        "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "body-sm": ["12px", {"lineHeight": "18px", "letterSpacing": "0", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400"}],
+                        "mono-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "letterSpacing": "0", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased overflow-x-hidden">
+<!-- SideNavBar (from JSON) -->
+<aside class="w-[224px] h-screen fixed left-0 top-0 bg-surface border-r border-outline-variant flex flex-col py-stack-lg gap-stack-sm z-50">
+<div class="px-container-padding mb-stack-md flex items-center gap-2">
+<div class="w-8 h-8 rounded bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined text-[20px]">smart_toy</span>
+</div>
+<span class="font-headline-sm text-headline-sm font-bold text-primary">客服机器人</span>
+</div>
+<nav class="flex-1 px-3 flex flex-col gap-1">
+<!-- Tab 0: 客服工作台 -->
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+<span class="font-label-md text-label-md">客服工作台</span>
+</a>
+<!-- Tab 1: 工单池 -->
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">list_alt</span>
+<span class="font-label-md text-label-md">工单池</span>
+</a>
+<!-- Tab 2: 我的工单 (ACTIVE) -->
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-primary bg-primary-container/10 font-bold border-r-4 border-primary transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">assignment_ind</span>
+<span class="font-label-md text-label-md">我的工单</span>
+</a>
+<!-- Tab 3: 知识库总览 -->
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">auto_stories</span>
+<span class="font-label-md text-label-md">知识库总览</span>
+</a>
+<!-- Tab 4: QA 库管理 -->
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">quiz</span>
+<span class="font-label-md text-label-md">QA 库管理</span>
+</a>
+<!-- Tab 5: 文档入库 -->
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">upload_file</span>
+<span class="font-label-md text-label-md">文档入库</span>
+</a>
+<!-- Tab 6: 智能问答调试 -->
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">smart_toy</span>
+<span class="font-label-md text-label-md">智能问答调试</span>
+</a>
+</nav>
+</aside>
+<!-- TopNavBar (from JSON) -->
+<header class="h-[56px] fixed top-0 right-0 left-[224px] z-40 bg-surface-container-lowest border-b border-outline-variant flex justify-between items-center px-container-padding">
+<div class="flex items-center">
+<span class="font-headline-sm text-headline-sm font-bold text-primary hidden">客服机器人</span> <!-- Hidden as requested by layout, but mapped from JSON -->
+</div>
+<div class="flex items-center gap-stack-md">
+<span class="font-label-md text-label-md text-on-surface-variant">当前账号：客服一组员工</span>
+<div class="flex items-center gap-2">
+<button class="p-1.5 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+<button class="p-1.5 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+</div>
+<button class="font-label-md text-label-md text-primary font-medium hover:text-primary-fixed-dim transition-colors cursor-pointer ml-2">退出</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-[224px] mt-[56px] p-container-padding min-h-[calc(100vh-56px)]">
+<!-- Header & Controls -->
+<div class="flex justify-between items-center mb-stack-lg">
+<h1 class="font-headline-md text-headline-md text-on-surface">我的工单</h1>
+<!-- Segmented Control -->
+<div class="flex bg-surface-container-highest p-1 rounded-lg">
+<button class="px-4 py-1.5 rounded-md bg-surface shadow-sm font-label-md text-label-md text-on-surface transition-all" id="tab-inprogress">
+                    处理中
+                </button>
+<button class="px-4 py-1.5 rounded-md text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all" id="tab-completed">
+                    已完成
+                </button>
+</div>
+</div>
+<!-- Data Table Section -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden flex flex-col">
+<!-- Toolbar (Search/Filter) -->
+<div class="px-4 py-3 border-b border-outline-variant flex items-center justify-between bg-surface-bright">
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-outline">search</span>
+<input class="w-full h-8 pl-9 pr-3 rounded border border-outline-variant bg-surface text-body-sm focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none transition-all placeholder:text-outline placeholder:font-body-sm text-on-surface" placeholder="搜索工单..." type="text"/>
+</div>
+<button class="flex items-center gap-1 px-3 h-8 rounded border border-outline-variant bg-surface text-on-surface hover:bg-surface-container-low transition-colors font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px]">filter_list</span>
+                    筛选
+                </button>
+</div>
+<!-- Table -->
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low border-b border-outline-variant">
+<tr>
+<th class="px-4 py-3 font-label-md text-label-md text-outline font-medium w-[15%]">工单编号</th>
+<th class="px-4 py-3 font-label-md text-label-md text-outline font-medium w-[40%]">标题</th>
+<th class="px-4 py-3 font-label-md text-label-md text-outline font-medium w-[15%]">状态</th>
+<th class="px-4 py-3 font-label-md text-label-md text-outline font-medium w-[20%]">更新时间</th>
+<th class="px-4 py-3 font-label-md text-label-md text-outline font-medium text-right w-[10%]">操作</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<!-- Row 1 -->
+<tr class="group hover:bg-surface-container-low transition-colors duration-150">
+<td class="px-4 py-2 h-10 font-mono-sm text-mono-sm text-on-surface">TK-1003</td>
+<td class="px-4 py-2 h-10 font-body-md text-body-md text-on-surface font-medium group-hover:text-primary transition-colors cursor-pointer">支付回调延迟问题排查</td>
+<td class="px-4 py-2 h-10">
+<span class="inline-flex items-center px-2 py-0.5 rounded-lg text-label-md font-label-md bg-tertiary-fixed text-on-tertiary-fixed">
+                                处理中
+                            </span>
+</td>
+<td class="px-4 py-2 h-10 font-mono-sm text-mono-sm text-on-surface-variant">2023-10-27 14:32:01</td>
+<td class="px-4 py-2 h-10 text-right">
+<button class="font-label-md text-label-md text-primary hover:text-on-primary-fixed-variant transition-colors">查看</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="group hover:bg-surface-container-low transition-colors duration-150">
+<td class="px-4 py-2 h-10 font-mono-sm text-mono-sm text-on-surface">TK-1004</td>
+<td class="px-4 py-2 h-10 font-body-md text-body-md text-on-surface font-medium group-hover:text-primary transition-colors cursor-pointer">企业实名认证驳回咨询</td>
+<td class="px-4 py-2 h-10">
+<span class="inline-flex items-center px-2 py-0.5 rounded-lg text-label-md font-label-md bg-surface-variant text-on-surface-variant">
+                                已完成
+                            </span>
+</td>
+<td class="px-4 py-2 h-10 font-mono-sm text-mono-sm text-on-surface-variant">2023-10-27 11:15:44</td>
+<td class="px-4 py-2 h-10 text-right">
+<button class="font-label-md text-label-md text-primary hover:text-on-primary-fixed-variant transition-colors">查看</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="group hover:bg-surface-container-low transition-colors duration-150">
+<td class="px-4 py-2 h-10 font-mono-sm text-mono-sm text-on-surface">TK-1006</td>
+<td class="px-4 py-2 h-10 font-body-md text-body-md text-on-surface font-medium group-hover:text-primary transition-colors cursor-pointer">发票开具失败 (税务系统超时)</td>
+<td class="px-4 py-2 h-10">
+<span class="inline-flex items-center px-2 py-0.5 rounded-lg text-label-md font-label-md bg-tertiary-fixed text-on-tertiary-fixed">
+                                处理中
+                            </span>
+</td>
+<td class="px-4 py-2 h-10 font-mono-sm text-mono-sm text-on-surface-variant">2023-10-27 09:40:12</td>
+<td class="px-4 py-2 h-10 text-right">
+<button class="font-label-md text-label-md text-primary hover:text-on-primary-fixed-variant transition-colors">查看</button>
+</td>
+</tr>
+</tbody>
+</table>
+<!-- Pagination (Placeholder) -->
+<div class="px-4 py-3 border-t border-outline-variant flex items-center justify-between bg-surface-bright">
+<span class="font-body-sm text-body-sm text-outline">共 3 条记录</span>
+<div class="flex items-center gap-1">
+<button class="w-7 h-7 flex items-center justify-center rounded text-outline hover:bg-surface-container-low disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="w-7 h-7 flex items-center justify-center rounded bg-primary text-on-primary font-mono-sm text-mono-sm">1</button>
+<button class="w-7 h-7 flex items-center justify-center rounded text-on-surface hover:bg-surface-container-low disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<script>
+        // Simple visual toggle for the segmented control
+        const tabInprogress = document.getElementById('tab-inprogress');
+        const tabCompleted = document.getElementById('tab-completed');
+
+        function setActiveTab(activeBtn, inactiveBtn) {
+            // Active styling
+            activeBtn.classList.add('bg-surface', 'shadow-sm', 'text-on-surface');
+            activeBtn.classList.remove('text-on-surface-variant', 'hover:text-on-surface');
+
+            // Inactive styling
+            inactiveBtn.classList.remove('bg-surface', 'shadow-sm', 'text-on-surface');
+            inactiveBtn.classList.add('text-on-surface-variant', 'hover:text-on-surface');
+        }
+
+        tabInprogress.addEventListener('click', () => setActiveTab(tabInprogress, tabCompleted));
+        tabCompleted.addEventListener('click', () => setActiveTab(tabCompleted, tabInprogress));
+    </script>
+</body></html>
